@@ -73,3 +73,7 @@ body.catalog-lesson{display:block;height:auto;overflow:visible;background:var(--
 .catalog-lesson[data-mode=present] #complexity details{margin:10px 0}
 .catalog-lesson[data-mode=present] #complexity summary{padding-block:10px;min-height:42px}
 }
+
+/* Reference marker shared by the two definition scenes. */
+.catalog-lesson .scene-heading .concepts-label{display:flex;align-items:center;gap:8px;margin:0 0 12px;color:var(--cyan);font:600 13px/1.4 Arial,Helvetica,sans-serif;letter-spacing:.06em}
+.concepts-label svg{width:21px;height:21px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
