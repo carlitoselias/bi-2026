@@ -1,0 +1,23 @@
+/* Minimal navigation and light surface for Beyond the Fit. Original plots stay dark. */
+.theme-switch[hidden]{display:none!important}
+:root[data-theme=light]{--bg:#f5f5ec;--panel:#e9eee3;--panel2:#e1e8dc;--ink:#182c26;--muted:#4c6258;--line:#a8b9ab;--mint:#315d3b;--cyan:#086776;--amber:#855000;--pink:#9d3659}
+.legacy-link{font:13px Arial,sans-serif;text-decoration:none;color:var(--ink)}.theme-switch{display:flex;align-items:center;gap:8px;min-height:40px;background:transparent;color:var(--ink);border:1px solid var(--line);font-size:12px;padding:7px 10px}.theme-switch [data-theme-state]{color:var(--mint);font:11px Consolas,monospace}.theme-switch:focus-visible,.legacy-link:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+:root[data-theme=light] .topbar,:root[data-theme=light] .navigation{background:var(--bg)}
+:root[data-theme=light] .visual,:root[data-theme=light] .anscombe-panel,:root[data-theme=light] .scaling-row{background:var(--panel);border-color:var(--line)}
+:root[data-theme=light] .encoding-output,:root[data-theme=light] .prep-code,:root[data-theme=light] #plan-text{background:var(--panel2)}
+:root[data-theme=light] button:hover:not(:disabled){background:var(--panel2)}
+:root[data-theme=light] .primary:hover:not(:disabled){background:var(--mint);color:var(--bg)}
+:root[data-theme=light] .card.active,:root[data-theme=light] .card.active:hover:not(:disabled){background:var(--panel2)}
+:root[data-theme=light] .eval-idle,:root[data-theme=light] .scaling-limits p{color:var(--muted)}
+:root[data-theme=light] .lc-number,:root[data-theme=light] .lc-example .lc-answer,:root[data-theme=light] .lc-tag{color:var(--cyan)}
+:root[data-theme=light] .anscombe-footnote,:root[data-theme=light] .answer-box{border-color:var(--line)}
+/* These figures contain fixed semantic colours. Preserve their original contrast. */
+:root[data-theme=light] svg[role=img]{background:#101717;--bg:#101717;--panel:#182222;--panel2:#1d2928;--ink:#f3f1e7;--muted:#a6b9b4;--line:#34443f;--mint:#b8ecb2;--cyan:#70d6dc;--amber:#f4be73;--pink:#e59aad;border-radius:8px}
+@media(max-width:650px){.topbar{height:auto!important;min-height:110px;flex-wrap:wrap;gap:10px;padding:12px 20px!important}.top-actions{flex-wrap:wrap;gap:10px!important}.top-actions .icon-button{display:none}.legacy-link{font-size:12px}.theme-switch{font-size:11px}}
+
+/* Same institutional logo pair as the portal and other classes. */
+.topbar .site-institution{margin-left:18px;flex-shrink:0;order:3}.topbar .site-logo-pair{display:block;line-height:0}.topbar .site-logo{display:block;width:160px;max-height:48px;object-fit:contain}.topbar .logo-light{display:none}:root[data-theme=light] .topbar .logo-dark{display:none}:root[data-theme=light] .topbar .logo-light{display:block}
+@media(max-width:950px){.topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;height:auto!important;gap:12px;padding:12px 20px!important}.topbar .brand{grid-column:1;grid-row:1}.topbar .site-institution{grid-column:2;grid-row:1;margin:0}.topbar .site-logo{width:clamp(95px,23vw,150px);max-height:44px}.topbar .top-actions{grid-column:1/-1;grid-row:2;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}.topbar .top-actions .icon-button{display:none}}
+
+/* Cover uses theme-aware colours, unlike the older fixed-colour figures. */
+:root[data-theme=light] svg.hero-eval-svg[role=img]{background:transparent;border-radius:0}

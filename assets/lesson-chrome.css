@@ -1,0 +1,40 @@
+/* Shared class frame: the same 70px header and 68px presentation footer. */
+body.unified-lesson{--lesson-header:70px;--lesson-footer:68px;padding-top:var(--lesson-header)}
+.unified-lesson .lesson-topbar{position:fixed;z-index:40;top:0;left:0;right:0;box-sizing:border-box;height:var(--lesson-header);padding:0 3.5vw;display:flex;align-items:center;gap:28px;border-bottom:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.unified-lesson .lesson-brand{display:flex;align-items:center;gap:12px;color:var(--ink);text-decoration:none;flex:none}
+.unified-lesson .lesson-wordmark{font:italic 44px/1 Georgia,serif;letter-spacing:-3px}.unified-lesson .lesson-wordmark>span{color:var(--mint)}
+.unified-lesson .lesson-course{font:9px/1.6 Arial,sans-serif;letter-spacing:.6px;max-width:240px}
+.unified-lesson .lesson-links{display:flex;align-items:center;gap:22px}
+.unified-lesson .lesson-links a,.unified-lesson .lesson-links button{display:inline-flex;align-items:center;min-height:40px;padding:0;margin:0;border:0;border-radius:0;background:none;color:var(--ink);font:13px/1.2 Arial,sans-serif;text-decoration:none;white-space:nowrap}
+.unified-lesson .lesson-links a:hover,.unified-lesson .lesson-links button:hover{color:var(--mint);background:none}
+.unified-lesson .lesson-tools{display:flex;align-items:center;gap:14px;margin-left:auto;flex:none}
+.unified-lesson .lesson-tools .lesson-fullscreen{display:inline-flex;align-items:center;justify-content:center;min-height:40px;width:40px;padding:0;border:0;background:transparent;color:var(--ink);font-size:24px}
+.unified-lesson .lesson-tools .theme-switch{display:flex;align-items:center;gap:8px;min-height:40px;margin:0;padding:7px 10px;border:1px solid var(--line);border-radius:5px;background:transparent;font:12px Arial,sans-serif;color:var(--ink)}
+.unified-lesson .lesson-topbar .site-institution{display:block;order:0;flex:none;margin:0}
+.unified-lesson .lesson-topbar .site-logo-pair{display:block;line-height:0}
+.unified-lesson .lesson-topbar .site-logo{display:block;object-fit:contain;width:145px;max-height:42px}
+.unified-lesson .lesson-topbar .logo-light{display:none}:root[data-theme=light] .unified-lesson .lesson-topbar .logo-dark{display:none}:root[data-theme=light] .unified-lesson .lesson-topbar .logo-light{display:block}
+.unified-lesson .lesson-menu-tools{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:24px}.unified-lesson .lesson-menu-tools .mode-switch{display:flex;margin:0;gap:4px}.unified-lesson .lesson-menu-tools a{font-size:14px}
+.unified-lesson .publication{margin-top:0}
+.unified-lesson #presentation-nav,.unified-lesson .navigation{position:fixed;z-index:30;bottom:0;left:0;right:0;box-sizing:border-box;height:var(--lesson-footer);min-height:var(--lesson-footer);max-width:none;margin:0;padding:12px 3.5vw;display:flex;align-items:center;gap:20px;border-top:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.unified-lesson #presentation-nav[hidden]{display:none}
+.unified-lesson #presentation-nav button,.unified-lesson .navigation button{display:flex;align-items:center;justify-content:center;flex:none;width:42px;height:42px;min-height:42px;min-width:42px;padding:0;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--ink);font:20px Arial,sans-serif}
+.unified-lesson #presentation-nav .progress-area,.unified-lesson .navigation .progress-area,.unified-lesson #current-title{display:block;flex:1;min-width:0;font:11px/1.3 Arial,sans-serif;color:var(--muted)}
+.unified-lesson #chapter{font:10px/1.4 Arial,sans-serif;letter-spacing:1px}
+.unified-lesson #presentation-nav #counter,.unified-lesson .navigation #counter{font:12px/1 Arial,sans-serif;color:var(--muted);white-space:nowrap}
+.unified-lesson .track,.unified-lesson .progress-track{display:block;height:2px;margin-top:8px;background:var(--line)}.unified-lesson #progress{height:2px;background:var(--mint)}
+.unified-lesson:not(.catalog-lesson):not(.reading-lesson) #content{height:calc(100dvh - var(--lesson-header) - var(--lesson-footer))}
+.unified-lesson[data-mode=present] .lesson-scene{scroll-margin-top:var(--lesson-header);padding-bottom:100px}
+.unified-lesson .lesson-scene{scroll-margin-top:calc(var(--lesson-header) + 20px)}
+@media(max-width:1100px){.unified-lesson .lesson-topbar{gap:18px}.unified-lesson .lesson-course{max-width:170px;font-size:8px}.unified-lesson .lesson-topbar .site-logo{width:115px}.unified-lesson .lesson-links{gap:18px}}
+@media(max-width:760px){body.unified-lesson{--lesson-header:118px}.unified-lesson .lesson-topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:44px 42px;gap:6px 12px;padding:10px 20px}.unified-lesson .lesson-brand{grid-row:1;grid-column:1;gap:9px}.unified-lesson .lesson-course{max-width:190px;font-size:8px}.unified-lesson .lesson-wordmark{font-size:36px}.unified-lesson .lesson-topbar .site-institution{grid-row:1;grid-column:2;justify-self:end}.unified-lesson .lesson-topbar .site-logo{width:100px;max-height:36px}.unified-lesson .lesson-links{grid-row:2;grid-column:1;gap:16px}.unified-lesson .lesson-links a,.unified-lesson .lesson-links button{font-size:12px}.unified-lesson .lesson-tools{grid-row:2;grid-column:2;gap:2px}.unified-lesson .lesson-tools .lesson-fullscreen{width:28px;font-size:21px}.unified-lesson .lesson-tools .theme-switch{padding:6px;font-size:10px;gap:5px}.unified-lesson .lesson-tools [data-theme-state]{font-size:9px}.unified-lesson #presentation-nav,.unified-lesson .navigation{padding:12px 20px;gap:12px}.unified-lesson #presentation-nav .progress-area,.unified-lesson #current-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.unified-lesson:not(.catalog-lesson):not(.reading-lesson) #content{height:auto;min-height:calc(100dvh - var(--lesson-header) - var(--lesson-footer));padding-bottom:var(--lesson-footer)}}
+@media(max-width:360px){.unified-lesson .lesson-topbar{padding-inline:12px;column-gap:4px}.unified-lesson .lesson-links{gap:10px}.unified-lesson .lesson-course{max-width:130px;font-size:7px}.unified-lesson .lesson-topbar .site-logo{width:83px}}
+.unified-lesson .lesson-tools #full,.unified-lesson .lesson-tools #fullscreen,.unified-lesson .lesson-tools #lesson-fullscreen{display:inline-flex}
+
+/* Visible view choice shared by the two current ML lessons. */
+.unified-lesson .lesson-mode-switch{display:flex;gap:3px;margin-left:auto;padding:3px;background:var(--panel);border:1px solid var(--line);border-radius:6px;flex:none}
+.unified-lesson .lesson-mode-switch button{border:0;border-radius:3px;padding:8px 11px;background:transparent;color:var(--muted);font:12px/1.2 Arial,sans-serif;min-height:34px}
+.unified-lesson .lesson-mode-switch [aria-pressed=true]{background:var(--mint);color:var(--bg)}
+.unified-lesson .lesson-mode-switch+.lesson-tools{margin-left:0}
+@media(min-width:761px) and (max-width:1100px){.unified-lesson:has(.lesson-mode-switch) .lesson-topbar{gap:10px}.unified-lesson:has(.lesson-mode-switch) .lesson-course{max-width:135px}.unified-lesson:has(.lesson-mode-switch) .lesson-links{gap:12px}.unified-lesson .lesson-mode-switch button{padding:7px;font-size:11px}.unified-lesson:has(.lesson-mode-switch) .lesson-topbar .site-logo{width:90px}}
+@media(max-width:760px){body.unified-lesson:has(.lesson-mode-switch){--lesson-header:160px}.unified-lesson:has(.lesson-mode-switch) .lesson-topbar{grid-template-rows:44px 42px 36px}.unified-lesson .lesson-mode-switch{grid-row:3;grid-column:1/-1;margin:0;justify-self:center;padding:2px}.unified-lesson .lesson-mode-switch button{min-height:30px;padding:7px 18px}}
