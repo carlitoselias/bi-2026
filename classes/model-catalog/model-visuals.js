@@ -4,13 +4,14 @@ window.ModelVisuals = (() => {
   const M=window.LabMath, fmt=(x,n=1)=>Number(x).toFixed(n);
   const C={ink:'var(--ink)',muted:'var(--muted)',mint:'var(--plot-mint)',cyan:'var(--plot-cyan)',amber:'var(--plot-amber)',pink:'var(--plot-pink)',line:'var(--line)',panel:'var(--panel)'};
   const palettes=[C.mint,C.amber,C.cyan,C.pink];
-  const txt=(x,y,s,cls='',anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}" class="${cls}">${s}</text>`;
+  const xml=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+  const txt=(x,y,s,cls='',anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}" class="${cls}">${xml(s)}</text>`;
   const line=(x1,y1,x2,y2,color=C.line,width=2,dash='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
   const flowArrow=(x1,x2,y,color)=>`<path class="process-connector" d="M${x1} ${y}H${x2}M${x2-6} ${y-5}L${x2} ${y}L${x2-6} ${y+5}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
   const circle=(x,y,r,color,stroke='none')=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${color}" stroke="${stroke}" stroke-width="3"/>`;
   const diamond=(x,y,r=9)=>`<path d="M${x},${y-r} l${r},${r} l-${r},${r} l-${r},-${r}z" fill="${C.amber}" stroke="${C.ink}" stroke-width="2"/>`;
   function box(x,y,w,h,title,sub='',active=false){return `<rect x="${x-w/2}" y="${y}" width="${w}" height="${h}" rx="12" fill="${active?'var(--panel2)':C.panel}" stroke="${active?C.mint:C.line}" stroke-width="${active?3:1.5}"/>${txt(x,y+(sub?28:h/2+6),title,'mv-node')}${sub?txt(x,y+52,sub,'mv-sub'):''}`;}
-  function svg(body,label){return `<svg class="mv-svg" viewBox="0 0 800 400" role="img" aria-label="${label}">${body}</svg>`;}
+  function svg(body,label){return `<svg class="mv-svg" viewBox="0 0 800 400" role="img" aria-label="${xml(label)}">${body}</svg>`;}
   let frameProgress=1;
   const fade=(s,from,body)=>`<g opacity="${s>from?1:s===from?.16+.84*frameProgress:.16}">${body}</g>`;
   const reveal=(s,from,body)=>s<from?'':`<g opacity="${s===from?frameProgress:1}">${body}</g>`;
@@ -160,6 +161,64 @@ window.ModelVisuals = (() => {
     }
   };
 
+  Object.assign(specs,{
+    dbscan:{
+      name:'DBSCAN',subtitle:'Count neighbours. Connect dense regions.',context:'14 invented customers · monthly items and spend ($). Distances use standardized inputs.',type:'Live DBSCAN · eps includes the boundary; counts include the point itself.',
+      limit:'Radius and density are chosen settings. Noise is not proof of an error. Group IDs are arbitrary; traversal follows the displayed row order.',defaults:{eps:.65,minPts:3},
+      controls:v=>select('mv-eps','Radius eps',[[.4,'0.40'],[.65,'0.65'],[1,'1.00']],v.eps)+select('mv-density','Minimum neighbours',[[3,3],[4,4]],v.minPts),read:q=>({eps:+q('#mv-eps').value,minPts:+q('#mv-density').value}),
+      states(v){const r=M.dbscan(v.eps,v.minPts);return [
+        {kind:'data',title:'Start without group labels',text:'Each dot is one customer. Standardize items and spend so the distance rule does not use their raw numerical scales.',result:'14 customers · 2 features',r},
+        {kind:'radius',title:'Inspect one neighbourhood',text:'The outline marks radius eps around customer 6. Count every case inside it, including customer 6 itself.',result:`${r.near[5].length} neighbours; ${v.minPts} needed → ${r.core[5]?'core point':'not a core point'}`,r},
+        {kind:'core',title:'Find the core points',text:'A ring marks every point with enough neighbours. A core point can extend a group to other core points within its radius.',result:`${r.core.filter(Boolean).length} core points`,r},
+        ...r.trace.map(t=>({kind:'group',title:`Grow group ${t.group+1}`,text:'Connect reachable core points. Attach nearby border points without expanding from them. The next group starts from a remaining core point.',result:`${t.labels.filter(n=>n===t.group).length} customers in this group`,r,labels:t.labels})),
+        {kind:'done',title:'Read groups and noise',text:'Colours and numbers identify groups. Rings mark core points; crosses mark noise. A group number has no business meaning until we inspect its members.',result:`${r.groups} groups · ${r.noise} noise points`,r,labels:r.labels}
+      ];},
+      draw(v,s,t,states){const z=states[s],r=z.r;let b=axes('Items bought / month','Spend ($ / month)',10,100);const origin=coords(...M.densityRows[5],10,100);
+        if(z.kind==='radius'){b+=`<ellipse cx="${origin[0]}" cy="${origin[1]}" rx="${v.eps*r.sd[0]/10*660*t}" ry="${v.eps*r.sd[1]/100*280*t}" fill="none" stroke="${C.amber}" stroke-width="2" stroke-dasharray="5 4"/>`;r.near[5].forEach(i=>{const p=coords(...M.densityRows[i],10,100);b+=line(...origin,lerp(origin[0],p[0],t),lerp(origin[1],p[1],t),C.amber,2);});}
+        if(z.kind==='group'){const group=Math.max(...z.labels.filter(Number.isInteger));r.near.forEach((near,i)=>{if(r.core[i]&&z.labels[i]===group)near.forEach(j=>{if(j<=i||z.labels[j]!==group)return;const a=coords(...M.densityRows[i],10,100),d=coords(...M.densityRows[j],10,100);b+=line(...a,lerp(a[0],d[0],t),lerp(a[1],d[1],t),palettes[group%palettes.length],2);});});}
+        M.densityRows.forEach((p,i)=>{const [x,y]=coords(...p,10,100),g=z.labels?.[i],has=Number.isInteger(g)&&g>=0,col=has?palettes[g%palettes.length]:C.cyan;
+          b+=circle(x,y,8,col);if((z.kind==='core'||z.labels)&&r.core[i])b+=`<circle cx="${x}" cy="${y}" r="13" fill="none" stroke="${col}" stroke-width="2" opacity="${z.kind==='core'?t:1}"/>`;
+          if(z.kind==='done'&&g===-1)b+=`<path d="M${x-8} ${y-8}l16 16m-16 0l16-16" stroke="${C.ink}" stroke-width="2"/>`;else if(has)b+=txt(x,y-18,g+1,'mv-sub');});
+        return svg(b,`DBSCAN. ${z.title}. ${z.result}.`);}
+    },
+    pca:{
+      name:'PCA',subtitle:'Find a direction. Keep fewer coordinates.',context:'The same 12 invented customers as K-means · monthly items and spend ($).',type:'Live two-feature PCA · exact covariance eigendecomposition.',
+      limit:'The first component maximizes variance in the prepared inputs. It does not use targets or prove that the representation is useful. Component signs can reverse without changing the subspace.',defaults:{scale:1},
+      controls:v=>select('mv-scale','Preparation',[[1,'Center + standardize'],[0,'Center only']],v.scale),read:q=>({scale:+q('#mv-scale').value}),
+      states(v){const r=M.pca(!!v.scale);return steps(['Center the measurements','Learn a new direction','Project onto one component','Read the retained variation'],[
+        `Subtract training means: ${fmt(r.mu[0],2)} items and $${fmt(r.mu[1],2)}. ${v.scale?'Then divide by each feature SD; both axes are in SD units.':'Keep the original units. Spend now dominates the numerical variation.'}`,
+        'The first principal component follows the direction with the most variance. This direction is learned from the prepared rows, not chosen by eye.',
+        'Drop a perpendicular from every point to the learned axis. Keep its signed coordinate along that axis: two features become one component score.',
+        'The projection discards variation perpendicular to the first component. Retained variance measures this representation, not prediction accuracy.'
+      ],[v.scale?'Two standardized features':'Two centered features',`Direction = (${fmt(r.axis[0],3)}, ${fmt(r.axis[1],3)})`,`Customer 1: component score ${fmt(r.scores[0],2)}`,`${fmt(100*r.ratio,1)}% variance retained`]).map(z=>({...z,r}));},
+      draw(v,s,t,states){const r=states[s].r,bound=Math.max(...r.x.flatMap(p=>p.map(Math.abs)))*1.2,scale=135/bound,origin=[400,190],pos=p=>[400+p[0]*scale,190-p[1]*scale];let b=line(220,190,580,190)+line(400,25,400,355)+txt(400,386,v.scale?'Centered and standardized items →':'Centered items (items / month) →','mv-sub')+txt(400,22,v.scale?'↑ Centered and standardized spend':'↑ Centered spend ($ / month)','mv-sub');
+        [-1,1].forEach(sign=>{b+=txt(400+sign*135,212,fmt(sign*bound,1),'mv-tick')+txt(388,190-sign*135+5,fmt(sign*bound,1),'mv-tick','end');});
+        if(s>=1){const angle=s===1?lerp(0,r.angle,t):r.angle,dir=[Math.cos(angle),Math.sin(angle)];b+=line(...pos(dir.map(n=>-bound*n*1.15)),...pos(dir.map(n=>bound*n*1.15)),C.mint,4)+txt(620,65,'PC1','mv-emphasis');}
+        r.x.forEach((p,i)=>{const a=pos(p),dest=pos(r.projection[i]),u=s===2?t:s>2?1:0;if(s>=2){b+=circle(...a,5,C.muted)+line(...a,lerp(a[0],dest[0],u),lerp(a[1],dest[1],u),C.amber,1.5,'4 4');}b+=circle(lerp(a[0],dest[0],u),lerp(a[1],dest[1],u),7,C.cyan);});
+        if(s===3)b+=txt(400,354,`${fmt(100*r.ratio,1)}% retained · ${fmt(100*(1-r.ratio),1)}% discarded`,'mv-emphasis');return svg(b,`PCA. ${states[s].title}. ${states[s].result}.`);}
+    },
+    isolation:{
+      name:'Isolation Forest',subtitle:'Split at random. Count the path lengths.',context:'14 invented customers · monthly items and spend ($). Inspect one case across many trees.',type:'Live seeded isolation trees · all 14 rows per tree; depth limit 4.',
+      limit:'Positive score = 2^(−mean corrected path / c(14)); higher is more unusual. c(14) is the expected path length for 14 rows. Leaf corrections use exact harmonic numbers. This teaching implementation is not scikit-learn; its score_samples uses the opposite sign. No score is a fraud probability.',defaults:{target:12,trees:32,seed:7,cutoff:.6},
+      controls:v=>select('mv-case','Inspect customer',[[0,'1 · (1 item, $15)'],[12,'13 · (9 items, $10)'],[13,'14 · (0.3 items, $95)']],v.target)+select('mv-trees','Trees',[[16,16],[32,32]],v.trees)+select('mv-seed','Random splits',[[7,'Seed A'],[19,'Seed B']],v.seed)+select('mv-cutoff','Flag at score ≥',[[.5,'0.50'],[.6,'0.60'],[.7,'0.70']],v.cutoff),
+      read:q=>({target:+q('#mv-case').value,trees:+q('#mv-trees').value,seed:+q('#mv-seed').value,cutoff:+q('#mv-cutoff').value}),
+      states(v){const r=M.isolationForest(v.trees,v.seed),p=r.paths[v.target][0],score=r.scores[v.target];return [
+        {kind:'data',title:'Select a case to inspect',text:'The outlined point is one customer. We fit random partitions without normal or abnormal labels.',result:`Customer ${v.target+1}: ${M.densityRows[v.target][0]} items · $${M.densityRows[v.target][1]}`,r,p},
+        ...p.cuts.map((cut,i)=>({kind:'cut',depth:i+1,title:`Tree 1 · random split ${i+1}`,text:`Split ${cut.feature?'spend':'items'} at ${fmt(cut.cut,2)} ${cut.feature?'dollars':'items'}. Keep following the region containing the selected customer.`,result:`Follow the ${cut.left?'lower':'higher'} side`,r,p})),
+        {kind:'leaf',title:'Measure this path',text:'Stop at a single case or the depth limit. If a leaf still contains several cases, add an expected-path correction.',result:`${p.cuts.length} splits + ${fmt(M.pathCorrection(p.leafSize),2)} correction = ${fmt(p.length,2)}`,r,p},
+        {kind:'forest',title:'Average across random trees',text:'Each bar is a corrected path length for this customer in one tree. Shorter average paths produce a higher anomaly score.',result:`Mean path ${fmt(r.average[v.target],2)} → score ${fmt(score,3)}`,r,p},
+        {kind:'decision',title:'Apply a separate cutoff',text:'The cutoff changes the review decision, not the fitted trees or scores. A flag means investigate; it does not establish fraud or an error.',result:`${fmt(score,3)} ${score>=v.cutoff?'≥':'<'} ${fmt(v.cutoff,2)} → ${score>=v.cutoff?'flag for review':'not flagged'}`,r,p}
+      ];},
+      draw(v,s,t,states){const z=states[s];let b='';
+        if(z.kind==='forest'||z.kind==='decision'){const paths=z.r.paths[v.target],w=610/paths.length,max=Math.max(6,...paths.map(p=>p.length)),u=z.kind==='forest'?t:1;b=txt(75,35,'Corrected path length · one bar per tree','mv-axis','start')+line(75,300,735,300);[0,2,4,6].forEach(n=>b+=line(75,300-n/max*220,735,300-n/max*220)+txt(60,305-n/max*220,n,'mv-tick','end'));paths.forEach((p,i)=>{const h=p.length/max*220*u;b+=`<rect x="${85+i*w}" y="${300-h}" width="${w-3}" height="${h}" fill="${C.cyan}"/>`;});const y=300-z.r.average[v.target]/max*220;b+=line(75,y,735,y,C.amber,2,'5 4')+txt(400,340,`Mean path ${fmt(z.r.average[v.target],2)} · score ${fmt(z.r.scores[v.target],3)}`,'mv-emphasis');if(z.kind==='decision')b+=txt(400,385,z.result,'mv-node');
+        }else{b=axes('Items bought / month','Spend ($ / month)',10,100);let bounds=[0,10,0,100];const depth=z.kind==='cut'?z.depth:z.kind==='leaf'?z.p.cuts.length:0;
+          z.p.cuts.slice(0,depth).forEach((c,i)=>{const a=c.feature?coords(bounds[0],c.cut,10,100):coords(c.cut,bounds[2],10,100),d=c.feature?coords(bounds[1],c.cut,10,100):coords(c.cut,bounds[3],10,100),u=z.kind==='cut'&&i===depth-1?t:1;b+=line(...a,lerp(a[0],d[0],u),lerp(a[1],d[1],u),C.amber,3);if(c.feature){if(c.left)bounds[3]=c.cut;else bounds[2]=c.cut;}else{if(c.left)bounds[1]=c.cut;else bounds[0]=c.cut;}});
+          const a=coords(bounds[0],bounds[3],10,100),d=coords(bounds[1],bounds[2],10,100);if(depth)b+=`<rect x="${a[0]}" y="${a[1]}" width="${d[0]-a[0]}" height="${d[1]-a[1]}" fill="${C.mint}" opacity=".1"/>`;
+          M.densityRows.forEach((p,i)=>{const a=coords(...p,10,100);b+=circle(...a,7,i===v.target?C.amber:C.cyan);if(i===v.target)b+=`<circle cx="${a[0]}" cy="${a[1]}" r="14" fill="none" stroke="${C.ink}" stroke-width="2"/>`;});}
+        return svg(b,`Isolation Forest. ${z.title}. ${z.result}.`);}
+    }
+  });
+
   const players=new Map();
   const namespace=(html,id)=>html.replace(/(id|for)="mv-/g,`$1="${id}-mv-`);
   function html(id){
@@ -192,7 +251,7 @@ window.ModelVisuals = (() => {
     const player={pause,dispose(){pause();disposed=true;cancelAnimationFrame(raf);document.removeEventListener('visibilitychange',hide);media.removeEventListener('change',reduce);players.delete(id);}};players.set(id,player);update();return()=>player.dispose();
   }
   // Small explanatory diagrams share one clock per scene and pause outside the viewport.
-  const miniLabels={quantity:'Illustrative regression: 8 km gives an estimate of 26 minutes.',category:'Illustrative classification: a booking receives a predicted category.',groups:'Illustrative grouping: fixed observations are assigned to three groups.',learned:'Illustrative slope: each additional kilometre adds two minutes.',hyper:'Three nearest examples are selected around a new input.',prep:'Training distances 2, 4 and 6 km give a mean of 4 km.',threshold:'A probability is compared with a fixed threshold of 0.6.'};
+  const miniLabels={reduce:'Illustrative projection from two dimensions onto one axis.',unusual:'Illustrative partitions isolate an unusual point.',quantity:'Illustrative regression: 8 km gives an estimate of 26 minutes.',category:'Illustrative classification: a booking receives a predicted category.',groups:'Illustrative grouping: fixed observations are assigned to three groups.',learned:'Illustrative slope: each additional kilometre adds two minutes.',hyper:'Three nearest examples are selected around a new input.',prep:'Training distances 2, 4 and 6 km give a mean of 4 km.',threshold:'A probability is compared with a fixed threshold of 0.6.'};
   function mini(kind){return `<div class="mini-diagram" data-mini="${kind}"></div>`;}
   function miniControls(){return '<div class="mini-controls"><button type="button" data-mini-toggle>Pause animation</button></div>';}
   function drawMini(kind,p){
@@ -221,6 +280,10 @@ window.ModelVisuals = (() => {
     }else if(kind==='prep'){
       b+=line(60,125,300,125,C.muted);[2,4,6].forEach((n,i)=>{const x=70+i*110;b+=circle(x,125,6,C.cyan)+txt(x,151,n,'mv-sub')+line(x,118,180,55,C.line,1)+circle(lerp(x,180,progress),lerp(118,55,progress),5,C.mint);});
       b+=txt(180,28,'(2 + 4 + 6) / 3 = 4 km','mv-emphasis')+txt(315,151,'km','mv-sub');
+    }else if(kind==='reduce'){
+      b+=line(40,145,320,40,C.mint,3);[[70,105],[110,130],[155,65],[190,100],[245,40],[285,75]].forEach(([x,y])=>{const dx=280,dy=-105,u=((x-40)*dx+(y-145)*dy)/(dx*dx+dy*dy),a=40+u*dx,z=145+u*dy;b+=line(x,y,a,z,C.muted,1,'3 3')+circle(lerp(x,a,progress),lerp(y,z,progress),8,C.cyan);});
+    }else if(kind==='unusual'){
+      [[55,110],[80,130],[95,85],[110,110],[140,90],[155,125]].forEach(([x,y])=>b+=circle(x,y,8,C.cyan));b+=circle(290,50,9,C.amber)+line(220,20,220,20+145*progress,C.mint,3);if(progress>.6)b+=`<circle cx="290" cy="50" r="20" fill="none" stroke="${C.amber}" stroke-width="2"/>`;
     }else if(kind==='threshold'){
       const probability=Math.round((.3+.4*progress)*100)/100,x=40+probability*280;b+=line(40,125,320,125,C.muted)+line(208,50,208,145,C.muted,2,'4 4')+line(208,125,320,125,C.mint,3)+circle(x,125,7,probability>=.6?C.mint:C.cyan)+txt(40,150,'0','mv-sub')+txt(208,166,'0.6','mv-sub')+txt(320,150,'1','mv-sub')+txt(180,28,`p = ${fmt(probability,2)} → ${probability>=.6?'flag':'no flag'}`,'mv-emphasis')+txt(100,82,'No flag','mv-sub')+txt(266,82,'Flag','mv-sub');
     }
