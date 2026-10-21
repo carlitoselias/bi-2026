@@ -16,7 +16,7 @@ window.ModelVisuals = (() => {
   const fade=(s,from,body)=>`<g opacity="${s>from?1:s===from?.16+.84*frameProgress:.16}">${body}</g>`;
   const reveal=(s,from,body)=>s<from?'':`<g opacity="${s===from?frameProgress:1}">${body}</g>`;
   const lerp=(a,b,t)=>a+(b-a)*t;
-  function axes(xLabel,yLabel,xmax,ymax){let b=txt(72,24,yLabel,'mv-axis','start');for(let i=0;i<=4;i++){const y=330-i*70;b+=line(75,y,735,y)+txt(60,y+5,(ymax===1?fmt(ymax*i/4,2):Number(fmt(ymax*i/4,2))),'mv-tick','end');}for(let i=0;i<=4;i++)b+=txt(75+i*165,356,Number(fmt(xmax*i/4,2)),'mv-tick');return b+txt(410,391,xLabel,'mv-axis');}
+  function axes(xLabel,yLabel,xmax,ymax){let b=`<text class="mv-axis mv-y-axis" x="18" y="190" text-anchor="middle" transform="rotate(-90 18 190)">${xml(yLabel)}</text>`;for(let i=0;i<=4;i++){const y=330-i*70;b+=line(75,y,735,y)+txt(60,y+5,(ymax===1?fmt(ymax*i/4,2):Number(fmt(ymax*i/4,2))),'mv-tick','end');}for(let i=0;i<=4;i++)b+=txt(75+i*165,356,Number(fmt(xmax*i/4,2)),'mv-tick');return b+txt(410,391,xLabel,'mv-axis');}
   const coords=(x,y,xmax,ymax)=>[75+x/xmax*660,330-y/ymax*280];
   function poly(fn,xmax,ymax){return `<path d="${Array.from({length:151},(_,i)=>{const [x,y]=coords(xmax*i/150,fn(xmax*i/150),xmax,ymax);return `${i?'L':'M'}${x},${y}`;}).join(' ')}" fill="none" stroke="${C.mint}" stroke-width="4"/>`;}
   const select=(id,label,opts,value)=>`<label for="${id}">${label}<select id="${id}">${opts.map(([v,t])=>`<option value="${v}" ${String(v)===String(value)?'selected':''}>${t}</option>`).join('')}</select></label>`;
@@ -72,7 +72,7 @@ window.ModelVisuals = (() => {
     'predict-process':{
       process:true,name:'Apply the same rule',context:'',type:'',hideMotionNote:true,hideStepLinks:true,
       limit:'',
-      referenceId:'learning-terms',referenceLabel:'Next: learned values and chosen settings →',transitionMs:1100,defaults:{},controls:()=>'',read:()=>({}),
+      referenceId:'question',referenceLabel:'Next: explore the questions →',transitionMs:1100,defaults:{},controls:()=>'',read:()=>({}),
       states:()=>steps(['Start with a new input','Insert the distance','Multiply by the saved slope','Add the saved intercept','Return the estimate'],['Only the distance is supplied. The duration remains unknown. The saved rule is ready for use.','Move 8 km into the input position of the saved rule. Neither coefficient changes.','The distance contribution is 2 min/km × 8 km = 16 min. This is one part of the prediction.','Add the intercept: 10 min + 16 min = 26 min. This is the model output for this input.','Send the output to the new delivery: an estimated duration of 26 minutes. Its true duration is still unknown.'],['Distance = 8 km · duration = ?','10 + 2 × 8','2 × 8 = 16 min','10 + 16 = 26 min','Estimated duration: 26 min']),
       draw(v,s,t){
         let b=txt(400,29,'Saved rule: minutes = 10 + 2 × km','mv-emphasis')+txt(135,92,'New row','mv-emphasis')+txt(407,92,'Predict','mv-emphasis')+txt(675,92,'Estimated duration','mv-emphasis');
@@ -92,7 +92,7 @@ window.ModelVisuals = (() => {
       }
     },
     linear:{
-      name:'Linear regression',subtitle:'A line becomes a prediction.',context:'Five synthetic home sales · area in m² → price in $ thousands.',type:'Computed line and prediction',
+      name:'Linear regression',subtitle:'A line becomes a prediction.',context:"Estimate a home's sale price from its floor area.",type:'Computed line and prediction',
       limit:'The five sales define the line here. Moving the new home does not refit it. A line alone does not prove a causal effect.',defaults:{area:65},
       controls:v=>select('mv-area','New home',[[45,'45 m²'],[65,'65 m²'],[75,'75 m²']],v.area),read:q=>({area:+q('#mv-area').value}),
       states:v=>{const y=40+2*v.area;return steps(['Known examples','Fit a line','Place a new input','Follow the fitted rule','Read the prediction'],['Each circle is an invented home sale with known area and price.','Least squares gives intercept 40 $k and slope 2 $k per m².','The new area is known. Its sale price is not used.','Move from the input up to the line, then across to the price axis.','Apply the same rule to this new home. This is prediction, not a new fit.'],['5 training sales','price = 40 + 2 × area',`${v.area} m²`,`40 + 2 × ${v.area}`,`$${fmt(y,0)}k`]);},
@@ -102,7 +102,7 @@ window.ModelVisuals = (() => {
         if(s>=4)b+=line(px,py,lerp(px,75,t),py,C.amber,3,'6 5')+txt(200,py-15,`Prediction: $${fmt(prediction,0)}k`,'mv-emphasis');return svg(b,'Linear regression: known points, fitted line and projection of a new area onto the line.');}
     },
     logistic:{
-      name:'Logistic regression',subtitle:'A score becomes a probability. A threshold becomes a decision.',context:'Synthetic booking example · waiting days → probability of a missed visit.',type:'Illustrative fixed rule · live arithmetic',
+      name:'Logistic regression',subtitle:'A score becomes a probability. A threshold becomes a decision.',context:'Estimate whether a booked appointment will be missed.',type:'Illustrative fixed rule · live arithmetic',
       limit:'The score −2 + 0.2 × days is invented. The animation applies it; it does not train a clinical model. Probability and class are different outputs.',defaults:{days:15,threshold:.5},
       controls:v=>select('mv-days','Waiting time',[[5,'5 days'],[10,'10 days'],[15,'15 days'],[25,'25 days']],v.days)+select('mv-threshold','Flag if probability ≥',[[.5,'0.50'],[.8,'0.80']],v.threshold),read:q=>({days:+q('#mv-days').value,threshold:+q('#mv-threshold').value}),
       states:v=>{const z=-2+.2*v.days,p=1/(1+Math.exp(-z));return steps(['An input','An additive score','A probability','A decision threshold','A class decision'],['The waiting time is known when the appointment is booked.','The fixed coefficients produce a score. It can be negative or positive.','The logistic curve maps the score to a value between zero and one.','Keep the probability fixed. Compare it with the selected threshold.','The rule flags the booking only when its probability reaches the threshold.'],[`${v.days} days`,`z = −2 + 0.2 × ${v.days} = ${fmt(z)}`,`p = ${fmt(p*100)}%`,`threshold = ${fmt(v.threshold,2)}`,p>=v.threshold?'Flag this booking':'Do not flag this booking']);},
@@ -110,19 +110,19 @@ window.ModelVisuals = (() => {
         if(s>=3)b+=line(75,ty,lerp(75,735,s===3?t:1),ty,C.pink,3,'8 5')+txt(720,ty-12,`Threshold ${fmt(v.threshold,2)}`,'mv-pink','end');b+=reveal(s,4,box(555,260,285,58,p>=v.threshold?'FLAG':'DO NOT FLAG', '',true));return svg(b,'Logistic probability curve with a selected waiting time and a separate decision threshold.');}
     },
     knn:{
-      name:'k nearest neighbours',subtitle:'Find similar inputs. Combine their known answers.',context:'Twelve synthetic deliveries · distance in km → duration in minutes.',type:'Live neighbour selection and mean',
+      name:'k nearest neighbours',subtitle:'Find similar inputs. Combine their known answers.',context:"Estimate a new trip's duration from nearby trips with known durations.",type:'Live neighbour selection and mean',
       limit:'Only horizontal distance (km) selects neighbours. Duration is the target, not a distance input. Equal distances use the earlier training row.',defaults:{x:6.5,k:2},
       controls:v=>select('mv-trip','New trip',[[4.5,'4.5 km'],[6.5,'6.5 km'],[9.5,'9.5 km']],v.x)+select('mv-k','Neighbours k',[[1,1],[2,2],[3,3],[5,5]],v.k),read:q=>({x:+q('#mv-trip').value,k:+q('#mv-k').value}),
       nearest:v=>M.training.map((r,i)=>({r,i,d:Math.abs(r[0]-v.x)})).sort((a,b)=>a.d-b.d||a.i-b.i).slice(0,v.k),
       states(v){const near=this.nearest(v),p=M.knn(M.training,v.x,v.k);return steps(['Stored training cases','A new trip','Find the nearest inputs','Average their durations','Predict this duration'],['Each training case already has a known distance and duration.','Place the new distance on the horizontal axis. Its duration is unknown.','Rank the horizontal distances. Select the k nearest training trips.','Use uniform weights: each selected duration has equal weight.','The average is the prediction for the new trip. No global line is fitted.'],['12 known trips',`${v.x} km`,`${v.k} nearest trips`,`(${near.map(n=>n.r[1]).join(' + ')}) / ${v.k}`,`${fmt(p,2)} min`]);},
-      draw(v,s,t){const near=this.nearest(v),prediction=M.knn(M.training,v.x,v.k),[px,py]=coords(v.x,prediction,12,50);let b=axes('Distance (km) · similarity uses this axis only','Duration (min) · known training answers',12,50);if(s>=2){const xs=near.map(n=>n.r[0]),x1=coords(Math.min(...xs),0,12,50)[0],x2=coords(Math.max(...xs),0,12,50)[0];b+=`<rect x="${x1-14}" y="50" width="${x2-x1+28}" height="280" fill="${C.mint}" opacity=".07"/>`;}
+      draw(v,s,t){const near=this.nearest(v),prediction=M.knn(M.training,v.x,v.k),[px,py]=coords(v.x,prediction,12,50);let b=axes('Distance (km)','Duration (min)',12,50);if(s>=2){const xs=near.map(n=>n.r[0]),x1=coords(Math.min(...xs),0,12,50)[0],x2=coords(Math.max(...xs),0,12,50)[0];b+=`<rect x="${x1-14}" y="50" width="${x2-x1+28}" height="280" fill="${C.mint}" opacity=".07"/>`;}
         M.training.forEach((r,i)=>{const [x,y]=coords(...r,12,50),selected=s>=2&&near.some(n=>n.i===i);b+=circle(x,y,selected?lerp(6,9,s===2?t:1):6,selected?C.mint:C.cyan);if(selected){b+=line(x,330,x,y,C.mint,2,'3 5')+txt(x,y-16,`${r[1]}`,'mv-emphasis');}});
         if(s>=1)b+=diamond(px,330);if(s>=2)b+=line(px,340,coords(near[near.length-1].r[0],0,12,50)[0],340,C.amber,3);
         b+=reveal(s,3,box(400,38,650,54,`(${near.map(n=>n.r[1]).join(' + ')}) / ${v.k}${s>=4?' = '+fmt(prediction,2)+' min':''}`));
         if(s>=4)b+=line(px,330,px,lerp(330,py,t),C.amber,3,'6 5')+diamond(px,lerp(330,py,t));return svg(b,'Nearest-neighbour regression: select by horizontal input distance, then average known target durations.');}
     },
     tree:{
-      name:'Decision tree',subtitle:'Follow a branch. Read a leaf.',context:'Synthetic appointments · waiting days → probability of a missed visit.',type:'Illustrative fixed tree · no training run',
+      name:'Decision tree',subtitle:'Follow a branch. Read a leaf.',context:'Follow a booking through a tree to estimate the chance of a missed visit.',type:'Illustrative fixed tree · no training run',
       limit:'This small tree has one split. Real trees can have more levels. The split and leaf counts are fixed illustrations; changing the booking only changes its path.',defaults:{days:12},
       controls:v=>select('mv-booking','New booking',[[4,'4 waiting days'],[7,'7 waiting days'],[12,'12 waiting days']],v.days),read:q=>({days:+q('#mv-booking').value}),
       states:v=>{const yes=v.days<=7,p=yes?.2:.8;return steps(['A new booking','Ask the learned rule','Follow one branch','Read the leaf','Turn probability into a class'],['The same input enters the root of the tree.','A split compares an available feature with a threshold. Here: waiting days ≤ 7.','Only one path applies to this booking. The other branch remains unused.','The leaf summarizes the training cases that reached it. These counts are invented.','At threshold 0.50, flag a booking with probability at least 0.50.'],[`${v.days} waiting days`,`${v.days} ≤ 7?`,yes?'Yes → left branch':'No → right branch',yes?'1 missed / 5 = 0.20':'4 missed / 5 = 0.80',`${p>=.5?'Flag':'Do not flag'} · p = ${fmt(p,2)}`]);},
@@ -133,7 +133,7 @@ window.ModelVisuals = (() => {
         if(s>=4)b+=txt(400,230,yes?'p < 0.50 → do not flag':'p ≥ 0.50 → flag','mv-emphasis');return svg(b,`Decision tree: ${v.days} days follows the ${yes?'yes / left':'no / right'} branch to probability ${yes?'0.20':'0.80'}.`);}
     },
     forest:{
-      name:'Random Forest',subtitle:'Several different trees. One combined prediction.',context:'Synthetic delivery · known distance, traffic and parcel count → minutes.',type:'Illustrative fixed trees · live path and average',
+      name:'Random Forest',subtitle:'Several different trees. One combined prediction.',context:'Send one delivery through several trees and combine their time estimates.',type:'Illustrative fixed trees · live path and average',
       limit:'These three trees are invented, not a fitted Random Forest. A real forest learns diverse trees from sampled rows and feature choices; averaging cannot fix shared bias or leakage.',defaults:{trip:0},
       controls:v=>select('mv-forest-trip','Delivery',[[0,'A · 6.5 km · high traffic · 8 parcels'],[1,'B · 10 km · low traffic · 3 parcels']],v.trip),read:q=>({trip:+q('#mv-forest-trip').value}),
       cases:[{km:6.5,traffic:true,load:8},{km:10,traffic:false,load:3}],
@@ -143,7 +143,7 @@ window.ModelVisuals = (() => {
         [145,400,655].forEach((cx,j)=>{const selected=cx+(decisions[j]?-55:55);b+=fade(s,1,line(400,53,cx,90,C.line,2,'4 5')+txt(cx,78,`TREE ${j+1}`,'mv-tick')+box(cx,92,224,52,names[j])+line(cx,144,cx-55,220)+line(cx,144,cx+55,220)+txt(cx-48,181,'Yes','mv-tick')+txt(cx+48,181,'No','mv-tick')+box(cx-55,220,96,49,String(leaves[j][0]),'',s>=3&&decisions[j])+box(cx+55,220,96,49,String(leaves[j][1]),'',s>=3&&!decisions[j]));if(s>=2){const u=s===2?t:1;b+=line(cx,144,lerp(cx,selected,u),lerp(144,220,u),C.amber,4)+circle(lerp(cx,selected,u),lerp(144,220,u),6,C.amber);}if(s>=3)b+=txt(cx,295,`${vals[j]} min`,'mv-emphasis');if(s>=4)b+=line(cx,306,lerp(cx,400,t),lerp(306,334,t),C.mint,2);});if(s>=4)b+=box(400,334,385,55,`Mean prediction: ${fmt(M.mean(vals),1)} min`,'',true);return svg(b,'Random Forest illustration: one delivery passes through three distinct trees and their numeric leaf estimates are averaged.');}
     },
     boost:{
-      name:'XGBoost / gradient boosting',subtitle:'Start with a prediction. Add one correction at a time.',context:'Synthetic delivery illustration · output and corrections are in minutes.',type:'Illustrative correction trees · live arithmetic',
+      name:'XGBoost / gradient boosting',subtitle:'Start with a prediction. Add one correction at a time.',context:'Update a delivery-time estimate by adding successive tree corrections.',type:'Illustrative correction trees · live arithmetic',
       limit:'The correction outputs +10, −2 and +4 stay fixed here. In real boosting, changing the learning rate changes later training. This is not an XGBoost execution or a performance comparison.',defaults:{rate:.3},
       controls:v=>select('mv-rate','Learning rate',[[.1,'0.1'],[.3,'0.3'],[1,'1.0']],v.rate),read:q=>({rate:+q('#mv-rate').value}),
       states(v){const y=[20,20+10*v.rate,20+8*v.rate,20+12*v.rate];return steps(['Start with a simple estimate','Add the first tree','Add the next tree','Add a third tree','Read the ensemble output'],['A starting prediction is the current estimate before these trees are added.','The first correction tree suggests +10 minutes. Add only the learning-rate fraction.','A later correction tree suggests −2 minutes. A correction can lower the current output.','Another correction contributes +4 times the learning rate.','The output is the starting estimate plus all weighted tree contributions. These are fixed teaching values.'],['20.0 min',`20 + ${fmt(v.rate)} × 10 = ${fmt(y[1])}`,`${fmt(y[1])} − ${fmt(v.rate)} × 2 = ${fmt(y[2])}`,`${fmt(y[2])} + ${fmt(v.rate)} × 4 = ${fmt(y[3])}`,`${fmt(y[3])} min`]);},
@@ -152,7 +152,7 @@ window.ModelVisuals = (() => {
         [70,290,510,730].forEach((x,i)=>{b+=fade(s,i,box(x,285,125,62,`${fmt(y[i])} min`,i?'Updated':'Start',s===i));if(i<3){b+=line(x+63,316,x+157,316);if(s>=i+1){const u=s===i+1?t:1;b+=line(x+63,316,lerp(x+63,x+157,u),316,C.amber,4)+circle(lerp(x+63,x+157,u),316,6,C.amber);}}});if(s>=4)b+=txt(400,385,`20 + ${fmt(10*v.rate)} − ${fmt(2*v.rate)} + ${fmt(4*v.rate)} = ${fmt(y[3])} min`,'mv-emphasis');return svg(b,'Boosting illustration: weighted outputs of successive correction trees update a running numeric prediction.');}
     },
     kmeans:{
-      name:'K-means',subtitle:'Assign. Move the centres. Repeat.',context:'Twelve synthetic customers · monthly items and spend ($); no known group labels.',type:'Live Lloyd assignments and centroid updates',
+      name:'K-means',subtitle:'Assign. Move the centres. Repeat.',context:'Group customers by what they buy and how much they spend.',type:'Live Lloyd assignments and centroid updates',
       limit:'Distances use standardized features; axes show original units. Centre movement connects two computed states. Groups are distance-based descriptions, not verified customer classes.',defaults:{k:3,seed:0},
       controls:v=>select('mv-groups','Groups K',[[2,2],[3,3]],v.k)+select('mv-start','Initial centres',[[0,'Set A'],[1,'Set B']],v.seed),read:q=>({k:+q('#mv-groups').value,seed:+q('#mv-start').value}),
       states(v){return clusterTrace(v.k,v.seed).map(r=>({...r,title:{data:'Start with unlabelled cases',initial:'Place initial centres',assign:'Assign to the nearest centre',move:'Move each centre to its group mean',done:'Stop when the centres do not move'}[r.kind],text:{data:'There is no target to predict. We explore a grouping of numeric features.',initial:'Choose K starting positions. Different starting centres can give a different local result.',assign:'Compare standardized distances. Give each case the ID of its nearest centre.',move:'For each assigned group, calculate its mean. Move its centre to that computed position.',done:'Assignments and centres are stable for this initialization. This does not prove that the groups are useful or true.'}[r.kind],result:r.kind==='data'?'12 customers · no labels':r.kind==='initial'?`${v.k} initial centres`:r.kind==='assign'?`Assignment round ${r.iteration}`:r.kind==='move'?`Mean update ${r.iteration}`:`${v.k} stable groups`}));},
@@ -163,7 +163,7 @@ window.ModelVisuals = (() => {
 
   Object.assign(specs,{
     dbscan:{
-      name:'DBSCAN',subtitle:'Count neighbours. Connect dense regions.',context:'14 invented customers · monthly items and spend ($). Distances use standardized inputs.',type:'Live DBSCAN · eps includes the boundary; counts include the point itself.',
+      name:'DBSCAN',subtitle:'Count neighbours. Connect dense regions.',context:'Find dense customer groups and separate isolated purchasing patterns.',type:'Live DBSCAN · eps includes the boundary; counts include the point itself.',
       limit:'Radius and density are chosen settings. Noise is not proof of an error. Group IDs are arbitrary; traversal follows the displayed row order.',defaults:{eps:.65,minPts:3},
       controls:v=>select('mv-eps','Radius eps',[[.4,'0.40'],[.65,'0.65'],[1,'1.00']],v.eps)+select('mv-density','Minimum neighbours',[[3,3],[4,4]],v.minPts),read:q=>({eps:+q('#mv-eps').value,minPts:+q('#mv-density').value}),
       states(v){const r=M.dbscan(v.eps,v.minPts);return [
@@ -182,7 +182,7 @@ window.ModelVisuals = (() => {
         return svg(b,`DBSCAN. ${z.title}. ${z.result}.`);}
     },
     pca:{
-      name:'PCA',subtitle:'Find a direction. Keep fewer coordinates.',context:'The same 12 invented customers as K-means · monthly items and spend ($).',type:'Live two-feature PCA · exact covariance eigendecomposition.',
+      name:'PCA',subtitle:'Find a direction. Keep fewer coordinates.',context:"Summarize customers' purchasing patterns with one component.",type:'Live two-feature PCA · exact covariance eigendecomposition.',
       limit:'The first component maximizes variance in the prepared inputs. It does not use targets or prove that the representation is useful. Component signs can reverse without changing the subspace.',defaults:{scale:1},
       controls:v=>select('mv-scale','Preparation',[[1,'Center + standardize'],[0,'Center only']],v.scale),read:q=>({scale:+q('#mv-scale').value}),
       states(v){const r=M.pca(!!v.scale);return steps(['Center the measurements','Learn a new direction','Project onto one component','Read the retained variation'],[
@@ -198,7 +198,7 @@ window.ModelVisuals = (() => {
         if(s===3)b+=txt(400,354,`${fmt(100*r.ratio,1)}% retained · ${fmt(100*(1-r.ratio),1)}% discarded`,'mv-emphasis');return svg(b,`PCA. ${states[s].title}. ${states[s].result}.`);}
     },
     isolation:{
-      name:'Isolation Forest',subtitle:'Split at random. Count the path lengths.',context:'14 invented customers · monthly items and spend ($). Inspect one case across many trees.',type:'Live seeded isolation trees · all 14 rows per tree; depth limit 4.',
+      name:'Isolation Forest',subtitle:'Split at random. Count the path lengths.',context:'Find customers whose purchasing patterns are easy to isolate.',type:'Live seeded isolation trees · all 14 rows per tree; depth limit 4.',
       limit:'Positive score = 2^(−mean corrected path / c(14)); higher is more unusual. c(14) is the expected path length for 14 rows. Leaf corrections use exact harmonic numbers. This teaching implementation is not scikit-learn; its score_samples uses the opposite sign. No score is a fraud probability.',defaults:{target:12,trees:32,seed:7,cutoff:.6},
       controls:v=>select('mv-case','Inspect customer',[[0,'1 · (1 item, $15)'],[12,'13 · (9 items, $10)'],[13,'14 · (0.3 items, $95)']],v.target)+select('mv-trees','Trees',[[16,16],[32,32]],v.trees)+select('mv-seed','Random splits',[[7,'Seed A'],[19,'Seed B']],v.seed)+select('mv-cutoff','Flag at score ≥',[[.5,'0.50'],[.6,'0.60'],[.7,'0.70']],v.cutoff),
       read:q=>({target:+q('#mv-case').value,trees:+q('#mv-trees').value,seed:+q('#mv-seed').value,cutoff:+q('#mv-cutoff').value}),
@@ -226,8 +226,7 @@ window.ModelVisuals = (() => {
     const transport=`<div class="mv-transport"><button id="mv-play">Play</button><button id="mv-back" aria-label="Previous animation step">← Step</button><button id="mv-forward" aria-label="Next animation step">Step →</button><button id="mv-reset">Reset</button><span id="mv-count"></span></div>`;
     const explanation=`<aside class="mv-explanation"><p class="eyebrow" id="mv-phase"></p><h3 id="mv-title"></h3><p id="mv-text"></p><div id="mv-result" role="status" aria-live="polite"></div></aside>`;
     const context=a.context?`<p class="mv-example">${a.context}</p>`:'';
-    const notes=a.type||a.limit?`<details class="mv-details"><summary>About this example</summary><p>${a.type}</p><p>${a.limit}</p></details>`:'';
-    return namespace(`<section class="model-cover walkthrough-cover${a.process?' process-cover':''}"><div class="mv-layout"><div class="mv-stage">${context}<div id="mv-drawing"></div></div><div class="process-sidebar">${transport}<div class="mv-options">${a.controls(a.defaults)}</div>${explanation}${notes}</div></div></section>`,id);
+    return namespace(`<section class="model-cover walkthrough-cover${a.process?' process-cover':''}"><div class="mv-layout"><div class="mv-stage">${context}<div id="mv-drawing"></div></div><div class="process-sidebar">${transport}<div class="mv-options">${a.controls(a.defaults)}</div>${explanation}</div></div></section>`,id);
   }
 
   function mount(id,root){
@@ -235,7 +234,7 @@ window.ModelVisuals = (() => {
     players.get(id)?.dispose();const a=specs[id],media=matchMedia('(prefers-reduced-motion: reduce)');let values={...a.defaults},states=a.states(values),step=0,timer=0,raf=0,playing=false,disposed=false;
     function draw(t=1){if(!disposed){frameProgress=t;q('#mv-drawing').innerHTML=a.draw(values,step,t,states);}}
     function pause(){playing=false;cancelAnimationFrame(raf);raf=0;if(!disposed)draw();clearTimeout(timer);timer=0;if(!disposed&&q('#mv-play'))q('#mv-play').textContent=step===states.length-1?'Replay':'Play';}
-    function update(animate=false){cancelAnimationFrame(raf);const r=states[step];q('#mv-title').textContent=r.title;q('#mv-text').textContent=r.text;q('#mv-result').textContent=r.result;q('#mv-phase').textContent=`Step ${step+1} · ${id==='kmeans'?'Grouping':id==='linear'&&step===1?'Fit':'How the output is produced'}`;q('#mv-count').textContent=`${step+1} / ${states.length}`;q('#mv-back').disabled=step===0;q('#mv-forward').disabled=step===states.length-1;if(q('#mv-steps')){q('#mv-steps').innerHTML=states.map((r,i)=>`<button type="button" aria-label="Step ${i+1}: ${r.title}" aria-current="${i===step?'step':'false'}" data-mv-step="${i}">${i+1}</button>`).join('');q('#mv-steps').querySelectorAll('button').forEach(b=>b.onclick=()=>{pause();step=+b.dataset.mvStep;update(true);});}
+    function update(animate=false){cancelAnimationFrame(raf);const r=states[step];q('#mv-title').textContent=r.title;q('#mv-text').textContent=r.text;q('#mv-result').textContent=r.result;q('#mv-phase').textContent=`Step ${String(step+1).padStart(2,'0')}`;q('#mv-count').textContent=`${step+1} / ${states.length}`;q('#mv-back').disabled=step===0;q('#mv-forward').disabled=step===states.length-1;if(q('#mv-steps')){q('#mv-steps').innerHTML=states.map((r,i)=>`<button type="button" aria-label="Step ${i+1}: ${r.title}" aria-current="${i===step?'step':'false'}" data-mv-step="${i}">${i+1}</button>`).join('');q('#mv-steps').querySelectorAll('button').forEach(b=>b.onclick=()=>{pause();step=+b.dataset.mvStep;update(true);});}
       if(q('#mv-motion'))q('#mv-motion').textContent=media.matches?'Reduced motion: no automatic playback or moving transitions. Use the step buttons.':a.process?'Plays once, then stops. Pause or use the step buttons to inspect each transition.':'Plays once, then stops. Pause to discuss a step. Changing an input restarts the example.';
       q('#mv-play').disabled=media.matches;
       q('.model-cover').dataset.step=step;q('.model-cover').dataset.model=id;q('.model-cover').dataset.steps=states.length;
