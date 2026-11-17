@@ -1,0 +1,718 @@
+/* Clases 03 y 04. Base neutra; --rust se reserva a un énfasis explícito. */
+.w-figure{margin:22px 0 0;min-width:0}
+.w-figure svg{display:block;width:100%;height:auto;max-height:310px;overflow:visible}
+.w-figure figcaption,.w-source{font:15px/1.5 var(--sans);color:var(--muted);margin-top:15px}
+.w-svg text{font:18px var(--sans);fill:var(--ink)}
+.w-svg .w-small{font-size:15px}
+.w-svg .w-mark{fill:var(--ink);stroke:none}
+.w-svg .w-focus{fill:var(--rust);stroke:none}
+.w-svg .w-node{fill:var(--paper);stroke:var(--ink);stroke-width:1.7}
+.w-svg .w-axis{stroke:var(--muted);stroke-width:1.3;fill:none}
+.w-svg .w-grid{stroke:var(--rule);stroke-width:1;stroke-dasharray:3 5;fill:none}
+.w-svg .w-link{stroke:var(--muted);stroke-width:1.7;fill:none}
+.w-svg .w-line{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.w-svg .w-outline{stroke:var(--rule);stroke-width:1;fill:none}
+.w-svg .w-cell-label{paint-order:stroke;stroke:var(--paper);stroke-width:3px;stroke-linejoin:round;fill:var(--ink)}
+.w-svg .w-region{fill:var(--ink);stroke:var(--paper);stroke-width:3;stroke-linejoin:round}
+.w-flow{display:flex;flex-wrap:wrap;gap:15px;align-items:center;margin:30px 0;font:25px/1.35 var(--serif)}
+.w-flow span{padding:8px 0;border-bottom:1px solid var(--rule)}
+.w-flow b{font-weight:400;color:var(--muted)}
+.w-readout{color:var(--muted);font:16px/1.5 var(--sans);margin:16px 0}
+.w-table{table-layout:fixed;width:100%;font-size:17px}
+.w-table td,.w-table th{min-width:0;overflow-wrap:break-word;white-space:normal}
+.w-table caption{text-align:left;font:15px/1.5 var(--sans);color:var(--muted);margin-bottom:12px}
+.workshop-section .encoding-columns .w-table{margin-top:0}
+.workshop-section .encoding-code{border-left-color:var(--rule)}
+.workshop-section .encoding-flow b{color:var(--muted)}
+.w-anatomy{max-width:800px;margin:22px auto 0}
+.w-anatomy h3{font:30px/1.2 var(--serif);color:var(--ink);margin:0}
+.w-anatomy p{font-size:16px;line-height:1.5}
+.w-anatomy [data-part]{outline:1px solid transparent;outline-offset:6px;transition:outline-color .15s}
+.w-anatomy .is-part-focus{outline-color:var(--rust)}
+.w-anatomy .w-figure{margin:10px 0}
+.w-anatomy .w-figure svg{max-height:270px}
+.w-example-title{font:30px/1.3 var(--serif)!important;border-top:1px solid var(--rule);padding-top:24px;min-height:110px}
+.w-type-specimen{display:grid;gap:22px;margin:30px 0;padding:25px 0;border-block:1px solid var(--rule)}
+.w-type-heading{font:38px/1.2 var(--serif)}
+.w-type-number{font:30px/1.35 var(--sans);font-variant-numeric:tabular-nums}
+.w-type-context{font:17px/1.5 var(--sans);color:var(--muted)}
+.w-composition{display:grid;grid-template-columns:3fr 1fr;gap:20px 30px;margin-top:25px}
+.w-layout-title,.w-layout-source{grid-column:1/-1;border-block:1px solid var(--rule);padding:12px 0}
+.w-layout-title{font:30px var(--serif)}
+.w-layout-source{font-size:15px;color:var(--muted)}
+.w-layout-note{align-self:center;border-left:1px solid var(--rule);padding-left:20px}
+.w-layout-note p{font-size:17px;line-height:1.5;margin-top:12px}
+.w-layout-chart{min-width:0}
+.w-references{font:18px/1.55 var(--sans);padding-left:32px;margin:22px 0}
+.w-references li{padding-left:10px;margin-bottom:14px}
+.w-references li::marker{color:var(--rust);font:15px var(--mono)}
+.w-references a{overflow-wrap:anywhere}
+.w-controls button[aria-pressed=true]{background:var(--rust);border-color:var(--rust);color:var(--paper)}
+@media(max-width:800px){
+ .workshop-section .encoding-columns{grid-template-columns:1fr}
+ .workshop-section .encoding-columns>section{padding:22px 0;border-left:0}
+ .workshop-section .encoding-columns>section+section{border-top:1px solid var(--rule)}
+ .w-composition{grid-template-columns:1fr}.w-layout-note{border-left:0;border-top:1px solid var(--rule);padding:18px 0}
+ .w-example-title{min-height:0}.w-figure svg{max-height:300px}
+}
+@media(max-width:650px){
+ .w-svg text{font-size:20px}.w-svg .w-small{font-size:17px}
+ .w-table{font-size:14px}.w-table td,.w-table th{padding:10px 7px}
+ .w-flow{font-size:22px;gap:10px}.w-type-heading{font-size:32px}
+ .w-references{font-size:16px}.w-controls{gap:7px}.w-controls button{padding:9px 12px}
+}
+/* El motor de impresión clona el cuerpo de cada escena en un Shadow DOM. */
+.pdf-content .w-figure svg{max-height:240px}
+.pdf-content .w-flow{margin:18px 0;font-size:23px}
+.pdf-content .w-controls{display:none}
+.pdf-content .w-table{font-size:15px}
+.pdf-content .w-table td,.pdf-content .w-table th{padding:8px 10px}
+.pdf-content .w-anatomy h3{font-size:27px}
+.pdf-content .w-anatomy .w-figure svg{max-height:210px}
+.pdf-content .w-references{font-size:16px;line-height:1.45;margin:16px 0}
+.pdf-content .w-references li{margin-bottom:10px}
+.pdf-content .w-type-specimen{gap:16px;margin:16px 0;padding:18px 0}
+.pdf-content .encoding-code{border-left-color:var(--rule)}
+@media(prefers-reduced-motion:reduce){.w-anatomy [data-part]{transition:none}}
+
+/* D124: contenido y ejemplos de 04/03 de 2025, en la retícula de Pliego. */
+.source-section .section-body>p,.source-section .r-copy>p{font:18px/1.55 var(--sans);max-width:none;margin:16px 0}
+.source-section .section-body>.r-subtitle{font:28px/1.2 var(--serif);margin:-10px 0 24px}
+.r-grid{display:grid;gap:22px 26px;margin:24px 0;align-items:start}
+.r-grid-1{grid-template-columns:minmax(0,1fr)}
+.r-grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.r-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.r-grid>.r-part{border-top:1px solid var(--rule);padding-top:14px;min-width:0}
+.r-cell{min-width:0}
+.r-cell>.r-grid:first-child{margin-top:0}
+.source-section .r-part h3{font:27px/1.15 var(--serif);color:var(--rust);margin:0 0 12px}
+.source-section .r-part p,.source-section .r-part li,.source-section .r-note p,.source-section .r-resource p{font:17px/1.5 var(--sans);margin:9px 0}
+.source-section ul{padding-left:20px;margin:12px 0}
+.r-note{border-top:1px solid var(--rule);margin-top:24px;padding-top:14px}
+.r-note>*:first-child{margin-top:0}
+.r-spread{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:30px;align-items:center;margin:22px 0}
+.r-copy{min-width:0}
+.r-spread .r-grid{gap:18px 22px;margin:16px 0}
+.r-figure{margin:0;min-width:0;text-align:center}
+.r-figure a{display:block;border:0}
+.r-figure img{display:block;width:auto;max-width:100%;height:auto;max-height:560px;object-fit:contain;margin:auto}
+.r-full-figure img{max-height:660px;width:100%}
+.r-logo-spread{grid-template-columns:1.5fr 1fr}
+.r-logo-spread img,.r-short img{max-height:180px}
+.r-banner{margin-bottom:28px}.r-banner img{width:100%;max-height:160px;object-fit:contain}
+.r-resource{margin:18px 0;font-size:17px}.r-resource a{overflow-wrap:anywhere}
+.r-table{table-layout:fixed;width:100%;font:17px/1.45 var(--sans)}
+.r-table th,.r-table td{padding:14px 16px;white-space:normal;overflow-wrap:break-word}
+.r-steps{list-style:none;counter-reset:source-steps;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 30px;padding:0;margin:28px 0}
+.r-steps>li{counter-increment:source-steps;display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;border-top:1px solid var(--rule);padding-top:15px}
+.r-steps>li::before{content:counter(source-steps,decimal-leading-zero);font:24px var(--serif);color:var(--rust)}
+.source-section .r-steps h3{font:26px/1.2 var(--serif);margin:0 0 10px}
+.source-section .r-steps p{font:17px/1.5 var(--sans);margin:0}
+.r-icon{display:block;width:76px;height:64px;fill:none;stroke:var(--ink);stroke-width:1.6;margin-bottom:14px}
+.r-dense .r-part h3{font-size:23px}
+.r-dense .r-grid{gap:12px 20px;margin:12px 0}
+.r-dense .r-grid>.r-part{padding-top:10px}
+.r-dense .r-part h3{margin-bottom:8px}
+.r-dense .r-part p,.r-dense .r-part li{margin:6px 0}
+.r-dense .r-note{margin-top:14px;padding-top:10px}
+.r-dense .r-copy p,.r-dense .r-copy li,.r-dense .r-note p{font-size:16px;line-height:1.45}
+.r-dense .r-spread{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);align-items:start}
+.r-dense .r-figure{align-self:center}
+.r-image-only h2{margin-bottom:18px}
+@media(max-width:1000px){.r-grid-3{grid-template-columns:repeat(2,minmax(0,1fr))}.r-spread,.r-dense .r-spread{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:24px}.r-table th,.r-table td{padding:12px 10px}}
+@media(max-width:750px){.r-grid-2,.r-grid-3,.r-spread,.r-dense .r-spread,.r-steps{grid-template-columns:1fr}.source-section .r-part h3{font-size:26px}.r-spread{gap:24px}.r-figure img{max-height:620px}.r-table{font-size:14px}.r-table th,.r-table td{padding:10px 7px}.source-section .section-body>.r-subtitle{font-size:25px}.r-dense .r-copy p,.r-dense .r-copy li{font-size:17px}}
+/* El motor compartido pagina el contenido; no recortar las fuentes densas. */
+.pdf-content .r-grid{margin:14px 0;gap:12px 18px}
+.pdf-content .r-grid>.r-part{padding-top:10px}
+.pdf-content .r-part h3{font-size:23px;margin-bottom:8px}
+.pdf-content .r-part p,.pdf-content .r-part li,.pdf-content .r-note p,.pdf-content .r-resource p{font-size:15px;line-height:1.4;margin:6px 0}
+.pdf-content .r-spread{gap:20px;margin:16px 0}
+.pdf-content .r-figure img{max-height:410px}
+.pdf-content .r-full-figure img{max-height:470px}
+.pdf-content .r-banner img{max-height:100px}
+.pdf-content .r-note{margin-top:14px;padding-top:10px}
+.pdf-content .r-steps{gap:14px 22px;margin:18px 0}
+.pdf-content .r-steps h3{font-size:23px}.pdf-content .r-steps p{font-size:15px}
+.pdf-content .r-table{font-size:15px}.pdf-content .r-table th,.pdf-content .r-table td{padding:10px}
+.pdf-content .r-table th{width:auto!important}
+.pdf-content .r-subtitle{font:25px/1.2 var(--serif);margin:-10px 0 20px}
+.pdf-content>.r-figure{margin:18px auto}
+
+/* Recap: recorrido del curso, con Clase 03 como punto actual. */
+.recap-journey{margin:26px 0 34px}
+.recap-route{margin:0;overflow-x:auto}
+.recap-route svg{display:block;width:100%;height:auto}
+.recap-route text{font:23px var(--sans);fill:var(--ink);text-anchor:middle}
+.recap-route-past,.recap-route-end{fill:none;stroke:var(--ink);stroke-width:1.5}
+.recap-route-future{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:5 7}
+.recap-route-stop{fill:var(--ink)}
+.recap-route-now{fill:var(--rust)}
+.recap-route-next{fill:var(--muted)}
+.recap-route-destination{fill:var(--paper);stroke:var(--ink);stroke-width:1.5}
+.recap-route .recap-route-current-label{fill:var(--rust)}
+.recap-route-guide{fill:none;stroke:var(--rust);stroke-width:1}
+.recap-route-notes{display:grid;grid-template-columns:43.846% 1fr;gap:0}
+.recap-route-notes section{padding-right:40px}
+.recap-route-notes h3{font:30px/1.15 var(--serif);color:var(--ink);margin:0 0 12px}
+.recap-route-notes .recap-current h3{color:var(--rust)}
+.recap-route-notes p{font:19px/1.5 var(--sans);margin:0;max-width:40ch}
+.recap-outcome{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:38px;padding:26px 0;border-top:1px solid var(--rule)}
+.recap-outcome h3{font:15px/1.4 var(--mono);color:var(--muted);margin:0 0 14px}
+.recap-outcome p{margin:0}
+.recap-equation{display:block;font:29px/1.25 var(--serif);max-width:30ch}
+.recap-not-equal{color:var(--ink)}
+.recap-result{display:block;font:17px/1.5 var(--sans);margin-top:16px;color:var(--muted)}
+.recap-benefit{border-left:1px solid var(--rule);padding-left:30px}
+.recap-benefit p{font:21px/1.5 var(--sans)}
+.recap-route:focus-visible{outline:1px solid var(--rust);outline-offset:4px}
+@media(max-width:750px){.recap-route svg{min-width:680px}.recap-route{padding-bottom:10px}.recap-route-notes{grid-template-columns:1fr;gap:24px;margin-top:14px}.recap-route-notes section{padding-right:0}.recap-route-notes p{font-size:18px}.recap-outcome{grid-template-columns:1fr;gap:24px}.recap-benefit{border-left:0;border-top:1px solid var(--rule);padding:20px 0 0}.recap-equation{font-size:27px}}
+.pdf-content .recap-journey{margin:18px 0 24px}
+.pdf-content .recap-route{overflow:visible}
+.pdf-content .recap-route svg{min-width:0}
+.pdf-content .recap-route-notes h3{font-size:26px}
+.pdf-content .recap-route-notes p,.pdf-content .recap-benefit p{font-size:17px}
+.pdf-content .recap-outcome{padding:18px 0;gap:26px}
+.pdf-content .recap-equation{font-size:24px}
+
+/* Sistema visual: composición abstracta con llamadas a sus seis componentes. */
+.visual-system-diagram{margin:28px 0 18px;overflow-x:auto}
+.visual-system-diagram svg{display:block;width:100%;height:auto}
+.visual-system-diagram .vs-frame{fill:none;stroke:var(--rule);stroke-width:1.4}
+.visual-system-diagram .vs-type-large{font:700 49px var(--serif);fill:var(--ink)}
+.visual-system-diagram .vs-type-small{font:500 24px var(--sans);fill:var(--ink)}
+.visual-system-diagram .vs-placeholder{fill:none;stroke:var(--muted);stroke-width:3;opacity:.65}
+.visual-system-diagram .vs-rule,.visual-system-diagram .vs-grid{fill:none;stroke:var(--rule);stroke-width:1}
+.visual-system-diagram .vs-axis,.visual-system-diagram .vs-annotation,.visual-system-diagram .vs-dimension,.visual-system-diagram .vs-bracket{fill:none;stroke:var(--muted);stroke-width:1.2}
+.visual-system-diagram .vs-marks{fill:var(--ink)}
+.visual-system-diagram .vs-accent{fill:var(--rust)}
+.visual-system-diagram .vs-line{fill:none;stroke:var(--ink);stroke-width:2}
+.visual-system-diagram .vs-leaders{fill:none;stroke:var(--muted);stroke-width:1.2}
+.visual-system-diagram .vs-leaders circle{fill:var(--paper)}
+.visual-system-diagram .vs-label{font:600 27px var(--serif);fill:var(--ink)}
+.visual-system-diagram .vs-description{font:17px var(--sans);fill:var(--muted)}
+.visual-system-diagram:focus-visible{outline:1px solid var(--rust);outline-offset:5px}
+@media(max-width:750px){.visual-system-diagram svg{min-width:900px}.visual-system-diagram{padding-bottom:12px}}
+.pdf-content .visual-system-diagram{margin:18px 0;overflow:visible}
+.pdf-content .visual-system-diagram svg{min-width:0;max-height:360px}
+
+/* Recap: el gráfico pertenece al sistema; el beneficio deriva del conjunto. */
+.recap-system-outcome{grid-template-columns:minmax(0,calc(58.333% - 63px)) minmax(0,1fr);gap:24px;align-items:center}
+.recap-system-figure{margin:0}
+.recap-system-figure svg{display:block;width:100%;height:auto;max-height:200px}
+.recap-system-boundary{fill:none;stroke:var(--rust);stroke-width:1}
+.recap-chart-boundary{fill:none;stroke:var(--rule);stroke-width:1}
+.recap-system-title{font:25px var(--serif);fill:var(--ink)}
+.recap-chart-title{font:17px var(--sans);fill:var(--ink)}
+.recap-chart-axis{fill:none;stroke:var(--muted);stroke-width:1}
+.recap-chart-bars,.recap-system-swatch{fill:var(--ink)}
+.recap-system-type{font:30px var(--serif);fill:var(--ink)}
+.recap-system-unequal{font:40px var(--serif);fill:var(--ink);text-anchor:middle}
+.recap-system-emphasis{fill:var(--rust)}
+.recap-system-lines{fill:none;stroke:var(--muted);stroke-width:2}
+.recap-system-outcome .recap-benefit{border:0;padding:0}
+.recap-system-outcome .recap-result{margin:14px 0 0}
+@media(max-width:750px){.recap-system-outcome{grid-template-columns:1fr;gap:18px}.recap-system-figure svg{max-height:none}}
+.pdf-content .recap-system-outcome{gap:20px}
+.pdf-content .recap-system-figure svg{max-height:160px}
+
+.recap-system-outcome .recap-benefit h3{font:30px/1.15 var(--serif);color:var(--ink);margin:0 0 12px}
+.pdf-content .recap-system-outcome .recap-benefit h3{font-size:26px}
+
+/* Hojas superpuestas y ejemplos abstractos de los beneficios del sistema. */
+.visual-system-diagram .vs-sheet{fill:var(--paper);stroke:var(--muted);stroke-width:1;stroke-opacity:.55}
+.visual-system-diagram .vs-frame{fill:var(--paper)}
+.benefit-illustration{display:block;width:100%;height:90px;margin:10px 0 14px}
+.benefit-illustration .bi-outline{fill:none;stroke:var(--rule);stroke-width:1}
+.benefit-illustration .bi-line{fill:none;stroke:var(--ink);stroke-width:2}
+.benefit-illustration .bi-muted{fill:none;stroke:var(--muted);stroke-width:1.3}
+.benefit-illustration .bi-fill{fill:var(--ink)}
+.benefit-illustration .bi-text{fill:var(--ink);font:18px var(--sans)}
+.benefit-illustration .bi-serif{font:23px var(--serif)}
+.benefit-illustration .bi-focus{fill:var(--rust)}
+.benefit-illustration .bi-ring{fill:none;stroke:var(--rust);stroke-width:1}
+.benefit-illustration .bi-signature{fill:none;stroke:var(--rust);stroke-width:3}
+.pdf-content .benefit-illustration{height:72px;margin:8px 0 10px}
+
+/* Conclusión de los beneficios: ocupa la sexta celda sin repetir su formato. */
+.benefit-takeaway{align-self:center;border-left:2px solid var(--rust);padding:0 0 0 22px}
+.benefit-takeaway .benefit-illustration{margin:0 0 8px;height:84px}
+.benefit-takeaway .benefit-takeaway-label{font:13px/1.4 var(--mono);color:var(--muted);margin:0 0 8px}
+.benefit-takeaway p:last-child{font:22px/1.3 var(--serif);color:var(--ink);margin:0}
+.benefit-illustration .bi-insight{fill:none;stroke:var(--rust);stroke-width:2;stroke-linecap:round}
+
+/* Portada: construcción progresiva del sistema y páginas con reglas constantes. */
+.cover-system{margin:0;width:100%}
+.cover-system svg{display:block;width:100%;height:auto;overflow:hidden}
+.cover-system .cs-paper{fill:var(--paper);stroke:var(--muted);stroke-width:1;animation:cs-frame 20s ease-in-out infinite}
+.cover-system .cs-heading{fill:none;stroke:var(--ink);stroke-width:9}
+.cover-system .cs-copy{fill:none;stroke:var(--muted);stroke-width:3}
+.cover-system .cs-grid{fill:none;stroke:var(--rule);stroke-width:1}
+.cover-system .cs-axis{fill:none;stroke:var(--muted);stroke-width:1.2}
+.cover-system .cs-marks{fill:var(--ink)}
+.cover-system .cs-line{fill:none;stroke:var(--ink);stroke-width:2}
+.cover-system .cs-accent{fill:var(--rust)}
+.cover-system .cs-measure{fill:none;stroke:var(--muted);stroke-width:1;opacity:.65}
+.cover-system .cs-stage,.cover-system .cs-stack,.cover-system .cs-cycle,.cover-system .cs-turn{animation-duration:20s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
+.cover-system .cs-cycle{animation-name:cs-cycle}
+.cover-system .cs-stack{animation-name:cs-stack}
+.cover-system .cs-turn{transform-origin:48px 188px;opacity:0}
+.cover-system .cs-turn-one{animation-name:cs-turn-one}
+.cover-system .cs-turn-two{animation-name:cs-turn-two}
+.cover-system .cs-turn-three{animation-name:cs-turn-three}
+@keyframes cs-cycle{0%,95%{opacity:1}99%,100%{opacity:0}}
+@keyframes cs-frame{0%,58%{stroke-opacity:0}62%,100%{stroke-opacity:1}}
+@keyframes cs-stack{0%,64%{opacity:0}68%,100%{opacity:1}}
+.cover-system .cs-type{animation-name:cs-type}
+@keyframes cs-type{0%,3%{opacity:0}8%,100%{opacity:1}}
+.cover-system .cs-graphics{animation-name:cs-graphics}
+@keyframes cs-graphics{0%,12%{opacity:0}17%,100%{opacity:1}}
+.cover-system .cs-color{animation-name:cs-color}
+@keyframes cs-color{0%,23%{opacity:0}28%,100%{opacity:1}}
+.cover-system .cs-spacing{animation-name:cs-spacing}
+@keyframes cs-spacing{0%,33%{opacity:0}38%,100%{opacity:1}}
+.cover-system .cs-annotations{animation-name:cs-annotations}
+@keyframes cs-annotations{0%,43%{opacity:0}48%,100%{opacity:1}}
+.cover-system .cs-composition{animation-name:cs-composition}
+@keyframes cs-composition{0%,53%{opacity:0}58%,100%{opacity:1}}
+@keyframes cs-turn-one{0%,68%{opacity:1;transform:translate(0,0) skewY(0deg) scaleX(1)}74%,100%{opacity:0;transform:translate(-70px,-22px) skewY(-8deg) scaleX(.08)}}
+@keyframes cs-turn-two{0%,77%{opacity:1;transform:translate(0,0) skewY(0deg) scaleX(1)}83%,100%{opacity:0;transform:translate(-70px,-22px) skewY(-8deg) scaleX(.08)}}
+@keyframes cs-turn-three{0%,86%{opacity:1;transform:translate(0,0) skewY(0deg) scaleX(1)}92%,100%{opacity:0;transform:translate(-70px,-22px) skewY(-8deg) scaleX(.08)}}
+
+@media(prefers-reduced-motion:reduce){.cover-system .cs-stage,.cover-system .cs-stack,.cover-system .cs-cycle{animation:none;opacity:1}.cover-system .cs-turn{display:none}}
+@media print{.cover-system .cs-stage,.cover-system .cs-stack,.cover-system .cs-cycle{animation:none;opacity:1}.cover-system .cs-turn{display:none}}
+.pdf-content .cover-system .cs-stage,.pdf-content .cover-system .cs-stack,.pdf-content .cover-system .cs-cycle{animation:none;opacity:1}
+.pdf-content .cover-system .cs-turn{display:none}
+
+.economist-title-accent{color:var(--rust)}
+.economist-logo-link{display:flex;justify-content:center;margin:36px 0}
+.economist-logo-link a{display:block;width:min(100%,440px);border:0}
+.economist-logo-link img{display:block;width:100%;height:auto}
+
+/* Anatomía: los componentes se señalan sobre una pieza concreta. */
+.anatomy-example{margin:26px 0 12px;overflow-x:auto}
+.anatomy-example svg{display:block;width:100%;height:auto}
+.anatomy-example .an-sheet{fill:var(--paper);stroke:var(--rule);stroke-width:1}
+.anatomy-example .an-page{fill:var(--paper);stroke:var(--muted);stroke-width:1}
+.anatomy-example .an-title{fill:var(--ink);font:26px var(--serif)}
+.anatomy-example .an-subtitle{fill:var(--muted);font:16px var(--sans)}
+.anatomy-example .an-panel{fill:var(--ink);font:14px var(--sans)}
+.anatomy-example .an-grid{fill:none;stroke:var(--rule);stroke-width:1}
+.anatomy-example .an-axis{fill:none;stroke:var(--muted);stroke-width:1}
+.anatomy-example .an-mark{fill:var(--ink)}
+.anatomy-example .an-accent{fill:var(--rust)}
+.anatomy-example .an-line{fill:none;stroke:var(--ink);stroke-width:2}
+.anatomy-example .an-tick{fill:var(--muted);font:14px var(--sans)}
+.anatomy-example .an-value{fill:var(--ink);font:14px var(--sans)}
+.anatomy-example .an-annotation{fill:var(--ink);font:12px var(--sans)}
+.anatomy-example .an-source{fill:var(--muted);font:14px var(--sans)}
+.anatomy-example .an-leaders{fill:none;stroke:var(--muted);stroke-width:1.1}
+.anatomy-example .an-leaders circle{fill:var(--paper)}
+.anatomy-example .an-label{fill:var(--ink);font:23px var(--serif)}
+.anatomy-example .an-description{fill:var(--muted);font:17px var(--sans)}
+@media(max-width:750px){.anatomy-example svg{min-width:1080px}}
+.pdf-content .anatomy-example svg{min-width:0}
+
+.anatomy-example .an-page-background{fill:color-mix(in srgb,var(--paper) 94%,var(--ink) 6%);stroke:none}
+
+/* Título activo: pautas junto a una comparación con el mismo tratamiento visual. */
+.active-title-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:56px;align-items:center;margin:30px 0}
+.active-title-tips{margin:0;padding-left:22px}
+.active-title-tips li{margin:0 0 18px;padding-left:5px}
+.active-title-tips li:last-child{margin-bottom:0}
+.active-title-comparison{border-left:1px solid var(--rule);padding:24px 0 24px 40px}
+.active-title-comparison .active-title-example{font:34px/1.25 var(--serif);color:var(--ink);margin:0;max-width:24ch}
+.active-title-arrow{display:block;font:30px/1 var(--serif);color:var(--muted);margin:26px 0}
+@media(max-width:750px){.active-title-layout{grid-template-columns:1fr;gap:28px}.active-title-comparison{border-left:0;border-top:1px solid var(--rule);padding:28px 0 0}}
+.pdf-content .active-title-layout{gap:30px;margin:18px 0}
+.pdf-content .active-title-tips li{font-size:17px;margin-bottom:12px}
+.pdf-content .active-title-comparison .active-title-example{font-size:28px}
+
+.subtitle-context-comparison .active-title-example{font:25px/1.45 var(--sans);max-width:30ch}
+.pdf-content .subtitle-context-comparison .active-title-example{font-size:22px}
+
+/* Ejes: los mismos valores muestran el efecto del origen de la escala. */
+.axis-examples{padding-top:0;padding-bottom:0}
+.axis-examples svg{display:block;width:100%;height:auto}
+.axis-examples .ae-title{fill:var(--ink);font:22px var(--serif)}
+.axis-examples .ae-unit,.axis-examples .ae-tick{fill:var(--muted);font:15px var(--sans)}
+.axis-examples .ae-guide{fill:none;stroke:var(--rule);stroke-width:1}
+.axis-examples .ae-axis{fill:none;stroke:var(--muted);stroke-width:1}
+.axis-examples .ae-bar{fill:var(--ink)}
+.axis-examples .ae-value{fill:var(--ink);font:15px var(--sans)}
+.axis-examples .ae-arrow{fill:var(--muted);font:28px var(--serif)}
+.axis-examples path.ae-zero{stroke:var(--rust);stroke-width:1.5}
+.axis-examples text.ae-zero{fill:var(--rust)}
+
+.axis-examples .ae-axis-name{fill:var(--rust);font:16px var(--sans)}
+.axis-examples text.ae-crowded{font-size:12px}
+.axis-examples .ae-dense-date{font-size:12px}
+
+.axis-examples .ae-flawed .ae-axis{stroke:var(--ink);stroke-width:3}
+.axis-examples .ae-flawed .ae-tick{fill:var(--ink);font:15px var(--serif)}
+.axis-examples .ae-flawed .ae-mixed-date{fill:var(--muted);font:12px var(--mono)}
+
+/* Gridlines: mismos datos y ejes; cambia únicamente la cuadrícula. */
+.gridline-examples .gl-heavy .ae-guide{stroke:var(--ink);stroke-width:2;opacity:.65}
+.gridline-examples .gl-light .ae-guide{stroke:var(--ink);stroke-width:1;opacity:.2}
+.gridline-examples .ae-axis-name{fill:var(--muted)}
+
+/* Divisores uniformes y evaluación visual de los ejemplos. */
+.active-title-layout{align-items:stretch}
+.active-title-comparison{align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding-top:0;padding-bottom:0}
+.example-verdict-row{display:grid;grid-template-columns:minmax(0,1fr) 32px;gap:18px;align-items:center;padding:24px 0}
+.example-verdict{font:36px/1 var(--sans);text-align:center}
+.example-verdict-cross{color:var(--ink)}
+.example-verdict-check{color:var(--rust)}
+.example-separator{border:0;border-top:1px solid var(--rule);width:100%;margin:0}
+.example-svg-separator{fill:none;stroke:var(--rule);stroke-width:1}
+.example-svg-verdict{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.example-svg-cross{stroke:var(--ink)}
+.example-svg-check{stroke:var(--rust)}
+@media(max-width:750px){.active-title-comparison{padding-top:28px}}
+
+/* Regla: cada ejemplo se centra verticalmente en un cuadrante de igual altura. */
+.example-verdict-row{flex:1 1 0;min-height:0;align-content:center}
+.example-separator{flex:0 0 auto}
+.axis-examples .example-verdict-row{padding:12px 0}
+.example-verdict-row svg{min-width:0;align-self:center}
+
+/* Ejemplos neutros; el acento queda en la marca de aprobación. */
+#estilo-09 .ae-clear .ae-tick,#estilo-09 .ae-clear .ae-axis-name{fill:var(--ink)}
+#estilo-09 .ae-clear .ae-axis,#estilo-09 .ae-clear path.ae-zero{stroke:var(--ink)}
+
+/* Subtítulo: mostrar la jerarquía y la proximidad con su título. */
+.subtitle-specimen .subtitle-specimen-title{font:34px/1.2 var(--serif);color:var(--ink);margin:0 0 10px}
+.subtitle-specimen-loose .subtitle-specimen-title{margin-bottom:42px}
+.pdf-content .subtitle-specimen .subtitle-specimen-title{font-size:30px}
+
+/* Tres tipos de marca conservados en ambos cuadrantes de la comparación. */
+.marks-example{display:block;width:100%;height:auto}
+.marks-example .me-label{fill:var(--ink);font:17px var(--sans);text-anchor:middle}
+.marks-example .me-axis{fill:none;stroke:var(--muted);stroke-width:1}
+.marks-example .me-mark{fill:var(--ink)}
+.marks-example .me-line{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.marks-example .me-heavy{stroke-width:8}
+
+.marks-example .me-reference{fill:none;stroke:var(--muted);stroke-width:1;stroke-dasharray:4 4}
+.marks-example .me-reference-heavy{stroke:var(--ink);stroke-width:8;stroke-dasharray:none}
+.marks-example .me-overlap-clear circle{opacity:.7}
+.marks-example .me-guide-rule{fill:none;stroke:var(--rule);stroke-width:1}
+.marks-example .me-guide-text{fill:var(--muted);font:13px var(--sans)}
+
+/* Color: la misma semántica en barras y líneas, con redundancia visual. */
+.color-example{display:block;width:100%;height:auto}
+.color-example .ce-heading{fill:var(--ink);font:18px var(--serif)}
+.color-example .ce-label,.color-example .ce-value,.color-example .ce-key{fill:var(--ink);font:14px var(--sans)}
+.color-example .ce-axis{fill:none;stroke:var(--muted);stroke-width:1}
+.color-example .ce-grid,.color-example .ce-key-rule{fill:none;stroke:var(--rule);stroke-width:1}
+.color-example .ce-series{fill:none;stroke:var(--ink);stroke-width:2}
+.color-flawed .ce-axis{stroke:#b390ed;stroke-width:3}
+.color-flawed .ce-grid{stroke:#5599ee;stroke-width:2;opacity:.8}
+.color-flawed .ce-label,.color-flawed .ce-value{fill:var(--rule)}
+
+/* Espaciado: una misma composición con márgenes y agrupaciones distintas. */
+.spacing-example{display:block;width:100%;height:auto}
+.spacing-example .sp-page{fill:color-mix(in srgb,var(--paper) 94%,var(--ink) 6%);stroke:none}
+.spacing-example .sp-title{fill:var(--ink);font:21px var(--serif)}
+.spacing-example .sp-context,.spacing-example .sp-month{fill:var(--muted);font:12px var(--sans)}
+.spacing-example .sp-label{fill:var(--ink);font:14px var(--sans)}
+.spacing-example .sp-axis{fill:none;stroke:var(--muted);stroke-width:1}
+.spacing-example .sp-mark{fill:var(--ink)}
+.spacing-example .sp-line{fill:none;stroke:var(--ink);stroke-width:2}
+.spacing-example .sp-note-box{fill:none;stroke:var(--muted);stroke-width:1}
+.spacing-example .sp-note{fill:var(--ink);font:13px var(--sans)}
+
+/* Las páginas completas necesitan conservar su altura natural en cada cuadrante. */
+.spacing-comparison{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(min-content,1fr) auto minmax(min-content,1fr);justify-content:stretch;justify-items:stretch}
+.spacing-comparison .example-verdict-row{min-height:auto;padding:16px 0;align-content:center}
+.spacing-comparison .spacing-example{align-self:center}
+
+/* Tipografía: conservar la composición y variar únicamente el sistema tipográfico. */
+.type-reference{font:14px/1.5 var(--sans);margin:24px 0 0;color:var(--muted)}
+.type-example{display:block;width:100%;height:auto}
+.type-example text{fill:var(--ink);font-family:var(--sans)}
+.type-example .ty-title{font-size:23px;font-weight:700}
+.type-example .ty-subtitle{font-size:15px;font-weight:500}
+.type-example .ty-panel{font-size:16px;font-weight:600}
+.type-example .ty-label,.type-example .ty-value{font-size:14px;font-weight:400}
+.type-example .ty-annotation{font-size:12px;font-weight:400}
+.type-example .ty-source{font-size:11px;font-weight:400;fill:var(--muted)}
+.type-example .ty-mark{fill:var(--ink)}
+.type-example .ty-axis,.type-example .ty-guide{fill:none;stroke:var(--muted);stroke-width:1}
+.type-example .ty-rule{fill:none;stroke:var(--rule);stroke-width:1}
+.type-example .ty-line{fill:none;stroke:var(--ink);stroke-width:2}
+.type-flawed .ty-title{font-family:cursive;font-size:19px;font-weight:400}
+.type-flawed .ty-subtitle{font-family:var(--serif);font-size:21px;font-weight:700}
+.type-flawed .ty-panel{font-family:var(--mono);font-size:14px;font-weight:400}
+.type-flawed .ty-value{font-family:var(--serif);font-size:19px;font-weight:700}
+.type-flawed .ty-label-0{font-family:var(--serif);font-size:19px;font-weight:700}
+.type-flawed .ty-label-1{font-family:var(--mono);font-size:11px}
+.type-flawed .ty-label-2{font-family:cursive;font-size:17px;font-style:italic}
+.type-flawed .ty-label-3{font-family:var(--sans);font-size:12px;font-weight:700}
+.type-flawed .ty-annotation{font-family:var(--serif);font-size:16px;font-weight:700}
+.type-flawed .ty-source{font-family:var(--mono);font-size:15px;font-weight:700;fill:var(--ink)}
+
+/* Iconografía: mismas acciones; estilo, trazo, tamaño y color comparables. */
+.icon-example{display:block;width:100%;height:auto}
+.icon-example .ic-shape{stroke-linecap:round;stroke-linejoin:round}
+.icon-example .ic-label{fill:var(--ink);font:15px var(--sans)}
+
+/* Composición: misma información, con una jerarquía y un recorrido distintos. */
+.layout-example{display:block;width:100%;height:auto}
+.layout-example .ly-page{fill:color-mix(in srgb,var(--paper) 94%,var(--ink) 6%);stroke:none}
+.layout-example .ly-kpi{fill:var(--ink);font:44px var(--serif)}
+.layout-example .ly-label{fill:var(--ink);font:15px var(--sans)}
+.layout-example .ly-small{fill:var(--muted);font:12px var(--sans)}
+.layout-example .ly-note{fill:var(--ink);font:14px var(--sans)}
+.layout-example .ly-wrong-title{fill:var(--ink);font:22px var(--serif)}
+.layout-example .ly-axis,.layout-example .ly-guide{fill:none;stroke:var(--muted);stroke-width:1}
+.layout-example .ly-rule{fill:none;stroke:var(--rule);stroke-width:1}
+.layout-example .ly-mark{fill:var(--ink)}
+.layout-example .ly-line{fill:none;stroke:var(--ink);stroke-width:2}
+
+/* Introducción: texto a la izquierda y espacio para la futura gráfica. */
+.application-intro-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:center}
+@media(max-width:750px){.application-intro-layout{grid-template-columns:1fr;gap:0}.application-intro-visual:empty{display:none}}
+
+/* Slides 18–22: gráfico central y llamadas a sus decisiones de diseño. */
+.application-diagram{margin:28px 0 10px;overflow-x:auto}
+.application-diagram svg{display:block;width:100%;height:auto}
+.application-diagram text{fill:var(--ink)}
+.application-diagram .ap-chart-title{font:26px var(--serif)}
+.application-diagram .ap-call-title{font:25px var(--serif);fill:var(--rust)}
+.application-diagram .ap-call-body{font:18px var(--sans)}
+.application-diagram .ap-label{font:18px var(--sans)}
+.application-diagram .ap-tick,.application-diagram .ap-muted{font:16px var(--sans);fill:var(--muted)}
+.application-diagram .ap-note{font:16px var(--sans)}
+.application-diagram .ap-axis,.application-diagram .ap-measure{fill:none;stroke:var(--muted);stroke-width:1}
+.application-diagram .ap-grid{fill:none;stroke:var(--rule);stroke-width:1}
+.application-diagram .ap-leader{fill:none;stroke:var(--muted);stroke-width:1;opacity:.65}
+.application-diagram .ap-anchor{fill:var(--paper);stroke:var(--muted);stroke-width:1}
+.application-diagram .ap-bar,.application-diagram .ap-dot{fill:var(--ink)}
+.application-diagram .ap-accent{fill:var(--rust)}
+.application-diagram .ap-main{fill:none;stroke:var(--rust);stroke-width:3}
+.application-diagram .ap-secondary{fill:none;stroke:var(--muted);stroke-width:1}
+.application-diagram .ap-event{fill:none;stroke:var(--muted);stroke-width:1;stroke-dasharray:3 5}
+.application-diagram .ap-region{fill:color-mix(in srgb,var(--paper) 75%,var(--ink) 25%);stroke:var(--paper);stroke-width:1}
+.application-diagram .ap-region-focus{fill:var(--rust)}
+.application-diagram .ap-scatter{fill:var(--ink);opacity:.4}
+@media(max-width:750px){.application-diagram svg{min-width:1000px}}
+.pdf-content .application-diagram svg{min-width:0}
+
+/* Prueba en slide 18: reglas numeradas, sin líneas de conexión. */
+.application-diagram .ap-rule-number{font:20px var(--mono);fill:var(--rust)}
+.application-diagram .ap-rule-marker circle{fill:var(--rust);stroke:var(--paper);stroke-width:2}
+.application-diagram .ap-rule-marker text{fill:#fff;font:700 19px var(--sans)}
+
+/* Reglas numeradas de las slides 06 y 19–22. */
+.application-diagram .ap-single-rule{font-size:23px}
+.anatomy-example .an-label{fill:var(--rust)}
+.anatomy-example .ap-rule-marker circle{fill:var(--rust);stroke:var(--paper);stroke-width:2}
+.anatomy-example .ap-rule-marker text{fill:#fff;font:700 19px var(--sans)}
+
+/* Superficie de los gráficos centrales: mismo gris de la página de anatomía. */
+.application-diagram .ap-chart-background{fill:color-mix(in srgb,var(--paper) 94%,var(--ink) 6%);stroke:none}
+
+/* Mapa didáctico: detalle por zona, capas opcionales y escala de cobertura. */
+.map-interactive-example .map-zone{cursor:help}
+.map-interactive-example .map-zone-item:focus{outline:none}
+.map-interactive-example .map-zone-item:hover .map-zone,
+.map-interactive-example .map-zone-item:focus .map-zone{stroke:var(--ink);stroke-width:2}
+.map-interactive-example .map-zone-detail{display:none;pointer-events:none}
+.map-interactive-example .map-zone-item:hover .map-zone-detail,
+.map-interactive-example .map-zone-item:focus .map-zone-detail{display:block}
+.map-interactive-example .map-zone-detail rect{fill:var(--paper);stroke:var(--rule);stroke-width:1}
+.map-interactive-example .map-detail-name{font:600 18px var(--sans)}
+.map-interactive-example .map-detail-text{font:16px var(--sans)}
+.map-interactive-example .ap-rule-marker{pointer-events:none}
+.map-layer-controls{display:flex;align-items:center;gap:22px;color:var(--ink);font:18px var(--sans);height:38px}
+.map-layer-controls label{display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+.map-layer-controls input{width:17px;height:17px;margin:0;accent-color:var(--rust)}
+.map-layer-controls input:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.map-interactive-example:has(.map-layer-borders:not(:checked)) .map-zone{stroke:none}
+.map-interactive-example .map-places{display:none;pointer-events:none;fill:var(--ink);stroke:var(--paper);stroke-width:1.5}
+.map-interactive-example:has(.map-layer-places:checked) .map-places{display:inline}
+.application-diagram .map-rate-1{fill:color-mix(in srgb,var(--paper) 80%,var(--rust) 20%)}
+.application-diagram .map-rate-2{fill:color-mix(in srgb,var(--paper) 60%,var(--rust) 40%)}
+.application-diagram .map-rate-3{fill:color-mix(in srgb,var(--paper) 40%,var(--rust) 60%)}
+.application-diagram .map-rate-4{fill:color-mix(in srgb,var(--paper) 20%,var(--rust) 80%)}
+.application-diagram .map-rate-5{fill:var(--rust)}
+
+/* Torta / treemap: un único conjunto de datos, dos representaciones. */
+.pie-treemap-example .pie-part{stroke:var(--paper);stroke-width:2;stroke-linejoin:round}
+.pie-treemap-example .pie-part-0{fill:var(--rust)}
+.pie-treemap-example .pie-part-1{fill:var(--ink)}
+.pie-treemap-example .pie-part-2{fill:color-mix(in srgb,var(--ink) 70%,var(--paper) 30%)}
+.pie-treemap-example .pie-part-3{fill:color-mix(in srgb,var(--ink) 30%,var(--paper) 70%)}
+.pie-treemap-example .pie-label{font:17px var(--sans)}
+.pie-treemap-example .pie-value{font:600 20px var(--sans)}
+.pie-treemap-example .pie-label-0,.pie-treemap-example .pie-label-1,.pie-treemap-example .pie-label-2{fill:var(--paper)}
+.pie-treemap-example .pie-label-3{fill:var(--ink)}
+.pie-treemap-example .pie-direction{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.pie-treemap-example .treemap-chart-view{display:none}
+.pie-treemap-example:has(input[value="treemap"]:checked) .pie-chart-view{display:none}
+.pie-treemap-example:has(input[value="treemap"]:checked) .treemap-chart-view{display:inline}
+.pie-view-controls{display:flex;align-items:center;justify-content:center;gap:30px;height:44px;color:var(--ink);font:18px var(--sans)}
+.pie-view-controls label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.pie-view-controls input{width:18px;height:18px;margin:0;accent-color:var(--rust)}
+.pie-view-controls input:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+.pie-treemap-example:has(input[value="treemap"]:checked) .ap-rule-marker{display:none}
+
+/* Proceso de diseño: recorrido cíclico abierto, sin tarjetas. */
+.design-iteration{margin:30px 0 12px;overflow-x:auto}
+.design-iteration svg{display:block;width:100%;height:auto}
+.design-iteration .cycle-flow,.design-iteration .cycle-return{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.design-iteration .cycle-return{stroke:var(--rust);stroke-width:2}
+.design-iteration .cycle-node{fill:var(--paper);stroke:var(--rust);stroke-width:1.5}
+.design-iteration .cycle-number{font:20px var(--mono);fill:var(--rust)}
+.design-iteration .cycle-title{font:25px var(--serif);fill:var(--rust)}
+.design-iteration .cycle-description{font:18px var(--sans);fill:var(--ink)}
+.design-iteration .cycle-center{font:34px var(--serif);fill:var(--ink)}
+.design-iteration .cycle-center-copy{font:19px var(--sans);fill:var(--muted)}
+@media(max-width:750px){.design-iteration svg{min-width:1000px}}
+.pdf-content .design-iteration svg{min-width:0}
+
+/* Pruebas de estrés: cuatro apartados en dos filas. */
+.stress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:44px 36px;margin:28px 0}
+.stress-card{grid-column:auto;border-top:1px solid var(--rule);padding-top:14px;min-width:0}
+.stress-card.stress-wide{grid-column:auto}
+.source-section .stress-card h3{font:25px/1.2 var(--serif);color:var(--rust);margin:0 0 12px}
+.source-section .stress-card p{font:17px/1.45 var(--sans);margin:12px 0 0}
+.stress-visual{height:115px;display:flex;align-items:center;justify-content:center}
+.stress-visual svg{display:block;width:100%;max-width:360px;height:115px}
+.stress-visual text{font:14px var(--sans);fill:var(--ink)}
+.stress-mark{fill:var(--ink)}.stress-accent{fill:var(--rust)}
+.stress-line,.stress-frame{fill:none;stroke:var(--muted);stroke-width:1}
+.stress-trend{fill:none;stroke:var(--ink);stroke-width:2}
+.stress-gray{filter:grayscale(1)}
+.stress-timed-stage{background:color-mix(in srgb,var(--paper) 94%,var(--ink) 6%)}
+.stress-timed-stage>div{width:100%;text-align:center}
+.stress-timed-stage svg{margin:auto}
+.source-section .stress-timed-stage p{margin:0;padding:12px;text-align:center;font:20px var(--serif)}
+.stress-timed-actions{display:flex;gap:16px;align-items:center;margin-top:10px;min-height:34px;font:15px var(--sans)}
+.stress-timed-actions button,.stress-carousel-controls button{border:1px solid var(--rule);background:transparent;color:var(--ink);padding:7px 12px;font:inherit;cursor:pointer}
+.stress-timed-actions button:hover,.stress-carousel-controls button:hover{border-color:var(--rust)}
+.stress-timed-actions button:disabled{opacity:.6;cursor:default}
+.stress-timed-actions button:focus-visible,.stress-carousel-controls button:focus-visible{outline:2px solid var(--rust);outline-offset:3px}
+.stress-resources{border-top:1px solid var(--rule);padding-top:16px;margin-top:28px}
+.stress-resource-head{display:flex;align-items:center;justify-content:space-between;gap:20px;font:14px var(--mono);color:var(--muted)}
+.stress-carousel-controls{display:flex;align-items:center;gap:15px;flex-shrink:0}
+.stress-resource-panel{display:grid;grid-template-columns:180px minmax(0,1fr);align-items:center;gap:26px;padding:10px 0;min-height:115px}
+.stress-resource-panel svg{display:block;width:100%;height:100px}
+.source-section .stress-resource-panel h3{font:25px var(--serif);margin:0 0 7px;color:var(--ink)}
+.source-section .stress-resource-panel p{font:17px/1.45 var(--sans);margin:0;max-width:75ch}
+.stress-resource-panel[hidden],.stress-timed-stage [hidden]{display:none}
+@media(max-width:750px){.stress-grid{grid-template-columns:1fr}.stress-card,.stress-card.stress-wide{grid-column:auto}.stress-resource-panel{grid-template-columns:100px minmax(0,1fr);gap:16px}.stress-resource-head{align-items:flex-start}}
+@media print{.stress-resources .stress-resource-panel[hidden]{display:grid}.stress-carousel-controls,.stress-timed-actions{display:none}.stress-timed-stage [data-flash-chart][hidden]{display:block}.stress-timed-stage [data-flash-prompt]{display:none}}
+
+/* Cierre del bloque de diseño: decisiones conectadas y retorno de revisión. */
+.visual-closing-schema{margin:38px 0 16px;overflow-x:auto}
+.visual-closing-schema svg{display:block;width:100%;height:auto}
+.visual-closing-schema .closing-flow{fill:none;stroke:var(--rule);stroke-width:2}
+.visual-closing-schema .closing-return{fill:none;stroke:var(--rust);stroke-width:1.5}
+.visual-closing-schema .closing-node{fill:var(--paper);stroke:var(--rust);stroke-width:1.5}
+.visual-closing-schema .closing-number{fill:var(--rust);font:20px var(--mono)}
+.visual-closing-schema .closing-title{fill:var(--rust);font:27px var(--serif)}
+.visual-closing-schema .closing-question{fill:var(--muted);font:18px var(--sans)}
+.visual-closing-schema .closing-label{fill:var(--ink);font:23px var(--serif)}
+.visual-closing-schema .closing-copy{fill:var(--ink);font:20px var(--sans)}
+.visual-closing-schema .closing-loop{fill:var(--rust);font:20px var(--sans)}
+@media(max-width:750px){.visual-closing-schema svg{min-width:1050px}}
+.pdf-content .visual-closing-schema svg{min-width:0}
+
+/* Recursos y referencias de cierre, con todos sus elementos visibles. */
+.stress-resource-list{margin-top:28px}
+.stress-resource-list .stress-resource-panel{border-top:1px solid var(--rule);padding:22px 0}
+.design-reference-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:36px;margin-top:18px}
+.design-reference-columns .w-references{margin:0;font-size:17px;line-height:1.4}
+.design-reference-columns .w-references li{margin-bottom:20px}
+.design-reference-columns .w-references strong{font-weight:500}
+.design-reference-columns .w-references p{font:16px/1.45 var(--sans);margin:5px 0 0;color:var(--muted)}
+@media(max-width:750px){.design-reference-columns{grid-template-columns:1fr;gap:0}}
+.pdf-content .design-reference-columns{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+
+/* Abstract preview: the same particles form six chart families. */
+.application-intro-visual[data-chart-morph]{position:relative;align-self:center;min-width:0}
+[data-chart-morph] svg{display:block;width:100%;height:auto;overflow:visible}
+.chart-morph-static{fill:var(--ink);opacity:.8}
+.chart-morph-particles{display:none}
+[data-chart-morph].is-ready .chart-morph-static{display:none}
+[data-chart-morph].is-ready .chart-morph-particles{display:block}
+.chart-morph-toggle{position:absolute;right:0;bottom:0;width:32px;height:32px;padding:0;border:1px solid var(--rule);background:transparent;color:var(--muted);font:17px var(--sans);cursor:pointer}
+.chart-morph-toggle:hover,.chart-morph-toggle:focus-visible{color:var(--ink);border-color:var(--ink)}
+.chart-morph-toggle[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){[data-chart-morph].is-ready .chart-morph-static{display:block}[data-chart-morph].is-ready .chart-morph-particles,.chart-morph-toggle{display:none}}
+@media print{[data-chart-morph].is-ready .chart-morph-static{display:block}[data-chart-morph].is-ready .chart-morph-particles,.chart-morph-toggle{display:none}}
+.pdf-content [data-chart-morph] .chart-morph-static{display:block}
+.pdf-content [data-chart-morph] .chart-morph-particles,.pdf-content .chart-morph-toggle{display:none}
+
+/* Keep the transition slide's full text block together beside the animation. */
+.source-section .application-intro-copy h2{margin:0 0 18px}
+.source-section .application-intro-copy>.r-subtitle{font:28px/1.2 var(--serif);margin:0 0 24px}
+.source-section .application-intro-copy>p:not(.r-subtitle){font:18px/1.55 var(--sans);margin:0}
+@media(max-width:750px){.source-section .application-intro-copy>.r-subtitle{font-size:25px}.application-intro-layout{row-gap:24px}}
+
+@media(prefers-reduced-motion:reduce){.cover-system .cs-paper{animation:none;stroke-opacity:1}}
+@media print{.cover-system .cs-paper{animation:none;stroke-opacity:1}}
+.pdf-content .cover-system .cs-paper{animation:none;stroke-opacity:1}
+
+/* A shared surface anchors the good/bad chart examples without enclosing verdicts. */
+.example-verdict-row .example-chart-background{fill:color-mix(in srgb,var(--paper) 94%,var(--ink) 6%);stroke:none}
+
+/* Keep natural chart heights so backgrounds cannot cover the divider. */
+.axis-examples,.marks-comparison,.color-comparison{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(min-content,1fr) auto minmax(min-content,1fr);justify-items:stretch}
+.axis-examples .example-verdict-row,.marks-comparison .example-verdict-row,.color-comparison .example-verdict-row{min-height:auto;padding:16px 0;align-content:center}
+.axis-examples .example-separator,.marks-comparison .example-separator,.color-comparison .example-separator{position:relative;z-index:1}
+
+.stress-screens .stress-visual svg{max-width:520px}
+
+/* PDF: encajar los ejemplos completos sin recortar ni reducir toda la página. */
+.pdf-content .active-title-comparison{padding-left:26px}
+.pdf-content .example-verdict-row{padding:10px 0;min-height:auto;flex:0 0 auto}
+.pdf-content .active-title-comparison:has(.spacing-example),
+.pdf-content .active-title-comparison:has(.type-example),
+.pdf-content .active-title-comparison:has(.layout-example){display:grid;grid-template-rows:auto auto auto}
+.pdf-content .example-verdict-row svg{max-height:225px}
+.pdf-content .application-diagram{margin:16px 0 0}
+.pdf-content .application-diagram svg{max-height:440px}
+.pdf-content .design-iteration{margin:18px 0 0}
+.pdf-content .design-iteration svg{max-height:460px}
+.pdf-content .stress-grid{gap:24px 28px;margin:18px 0}
+.pdf-content .stress-card p{font-size:16px;line-height:1.4}
+.pdf-content .stress-visual,.pdf-content .stress-visual svg{height:96px}
+.pdf-content .stress-timed-actions{display:none}
+.pdf-content .stress-timed-stage [data-flash-chart]{display:block}
+.pdf-content .stress-timed-stage [data-flash-prompt]{display:none}
+
+/* Print grids keep the same columns at every screen/print viewport. */
+.pdf-content .r-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.pdf-content .r-grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pdf-content .anatomy-example{margin:14px 0 8px}
+.pdf-content .anatomy-example svg{max-height:320px}
+.pdf-content .design-iteration svg{max-height:350px}
+.pdf-content .map-interactive-example svg{max-height:350px}
+
+/* Keep the pie example with its introduction when web fonts are available. */
+.pdf-content .pie-treemap-example svg{max-height:400px}
+
+/* Clase 04: histogramas y cajas del mismo ejemplo. Estilos acotados al bloque EDA. */
+
+/* BI: editorial green remains outside charts. Graphic emphasis uses the
+   established focus color; sequential and categorical data retain separate roles.
+   Poor examples and the deliberately faint projector remain illustrative. */
+.workshop-section svg,.pdf-content svg {--rust:light-dark(#bc3d00,#ffb000);--on-focus:light-dark(#fff,#101717)}
+.application-diagram .ap-rule-marker text,.anatomy-example .ap-rule-marker text{fill:var(--on-focus)}
+.application-diagram .map-rate-1{fill:light-dark(#d4e6d6,#244636)}
+.application-diagram .map-rate-2{fill:light-dark(#a1c7aa,#3d6e50)}
+.application-diagram .map-rate-3{fill:light-dark(#6eaa80,#659c71)}
+.application-diagram .map-rate-4{fill:light-dark(#3e8055,#91c28e)}
+.application-diagram .map-rate-5{fill:light-dark(#155531,#c2edb7)}
+/* Four named channels: same distinct colors in both representations. */
+.pie-treemap-example .pie-part-0{fill:light-dark(#b84a00,#ffb000)}
+.pie-treemap-example .pie-part-1{fill:light-dark(#0063c7,#59bfff)}
+.pie-treemap-example .pie-part-2{fill:light-dark(#833bb5,#dc9dff)}
+.pie-treemap-example .pie-part-3{fill:light-dark(#14683a,#87d4a1)}
+.pie-treemap-example :is(.pie-label-0,.pie-label-1,.pie-label-2,.pie-label-3){fill:light-dark(#fff,#101717)}
+/* Neutral supporting data stay visible on projection. */
+.application-diagram .ap-region:not(.ap-region-focus):not([class*="map-rate-"]){fill:light-dark(#8d9992,#75887d)}
